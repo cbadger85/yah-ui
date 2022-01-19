@@ -1,5 +1,5 @@
-import { FieldContext } from 'components/Field';
-import { useGenerateUniqueIdOrDefault } from 'hooks';
+import { FieldContext } from '../Field';
+import { useGenerateUniqueIdOrDefault } from '../../hooks';
 import {
   ComponentPropsWithRef,
   forwardRef,
@@ -7,7 +7,7 @@ import {
   useContext,
   useEffect,
 } from 'react';
-import { mergeIds } from 'utils';
+import { mergeIds } from '../../utils';
 
 export interface InputProps extends ComponentPropsWithRef<'input'> {
   invalid?: boolean;

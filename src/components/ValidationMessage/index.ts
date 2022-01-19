@@ -1,1 +1,1 @@
-export * from 'components/ValidationMessage/ValidationMessage';
+export * from './ValidationMessage';

@@ -1,4 +1,4 @@
-import { isTruthy } from 'utils/typeGuards';
+import { isTruthy } from './typeGuards';
 
 export function mergeIds(...ids: (string | undefined | null)[]) {
   const existingIds = ids.filter(isTruthy);

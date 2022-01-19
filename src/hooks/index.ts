@@ -1,2 +1,2 @@
-export * from 'hooks/useGenerateUniqueId';
-export * from 'hooks/useIsomorphicLayoutEffect';
+export * from './useGenerateUniqueId';
+export * from './useIsomorphicLayoutEffect';

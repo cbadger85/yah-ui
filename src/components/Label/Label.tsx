@@ -1,5 +1,5 @@
-import { FieldContext } from 'components/Field';
-import { useGenerateUniqueId } from 'hooks';
+import { FieldContext } from '../Field';
+import { useGenerateUniqueId } from '../../hooks';
 import {
   ComponentPropsWithRef,
   forwardRef,

@@ -1,3 +1,3 @@
-export * from 'utils/common';
-export * from 'utils/mergeIds';
-export * from 'utils/typeGuards';
+export * from './common';
+export * from './mergeIds';
+export * from './typeGuards';

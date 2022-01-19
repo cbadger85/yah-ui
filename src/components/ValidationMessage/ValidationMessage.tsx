@@ -1,5 +1,5 @@
-import { FieldContext } from 'components/Field';
-import { useGenerateUniqueIdOrDefault } from 'hooks';
+import { FieldContext } from '../Field';
+import { useGenerateUniqueIdOrDefault } from '../../hooks';
 import {
   ComponentPropsWithRef,
   ElementType,
@@ -8,16 +8,14 @@ import {
   useContext,
   useEffect,
 } from 'react';
-import { PolymorphicProps } from 'types';
+import { PolymorphicProps } from '../../types';
 
-interface ValidationMessageOwnProps<E extends ElementType = 'span'> {
+export interface ValidationMessageOwnProps<E extends ElementType = 'span'> {
   as?: E;
 }
 
-type ValidationMessageProps<E extends ElementType = 'span'> = PolymorphicProps<
-  E,
-  ValidationMessageOwnProps<E>
->;
+export type ValidationMessageProps<E extends ElementType = 'span'> =
+  PolymorphicProps<E, ValidationMessageOwnProps<E>>;
 
 function useGetValidationMessagePropsFromFieldContext<
   E extends ElementType = 'span',

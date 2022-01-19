@@ -5,14 +5,14 @@
 
     "module": "ESNext",
     "rootDir": "src",
-    "baseUrl": "./src",
 
     "moduleResolution": "node",
-    "declaration": true,
+    "isolatedModules": true,
     "sourceMap": true,
     "outDir": "dist",
-    "noEmit": false,
-    "declarationDir": "types",
+    "declaration": true,
+    // "noEmit": true,
+    "emitDeclarationOnly": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -27,6 +27,6 @@
     "noUncheckedIndexedAccess": true,
     "allowUnreachableCode": true,
     "skipLibCheck": true,
-    "lib": ["DOM", "ESNext"]
+    "lib": ["DOM", "ESNext", "DOM.Iterable"]
   }
 }

@@ -1,4 +1,4 @@
-import { useFieldState, FieldActions, FieldState } from 'components/Field';
+import { useFieldState, FieldActions, FieldState } from './state';
 import { createContext, ReactNode } from 'react';
 
 export const FieldContext = createContext<[FieldState, FieldActions]>([
