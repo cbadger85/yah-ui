@@ -43,5 +43,5 @@ export const Label = forwardRef(function Label(
     props.id,
   );
 
-  return <label ref={ref} {...getLabelPropsFromFieldContext()} />;
+  return <label ref={ref} {...getLabelPropsFromFieldContext(props)} />;
 });
