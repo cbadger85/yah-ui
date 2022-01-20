@@ -1,17 +1,16 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "jsx": "preserve",
+    "jsx": "react-jsx",
 
     "module": "ESNext",
 
     "moduleResolution": "node",
     "isolatedModules": true,
     "sourceMap": true,
-    // "outDir": "dist/types",
     "declaration": true,
-    "declarationDir": "types",
-    // "emitDeclarationOnly": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "dist/types",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -25,7 +24,6 @@
     "alwaysStrict": true,
     "noUncheckedIndexedAccess": true,
     "allowUnreachableCode": true,
-    "skipLibCheck": true,
     "lib": ["DOM", "ESNext", "DOM.Iterable"]
   },
   "include": ["src"],

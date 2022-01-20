@@ -1,9 +1,5 @@
 import path from 'path';
-import { existsSync, readdirSync, lstatSync, rmdirSync, unlinkSync } from 'fs';
 import { defineConfig } from 'vite';
-import dts from 'vite-plugin-dts';
-
-emptyDir(path.resolve(__dirname, 'types'));
 
 const isExternal = (id: string) => !id.startsWith('.') && !path.isAbsolute(id);
 
@@ -26,30 +22,4 @@ export default defineConfig(() => ({
     minify: false,
     sourcemap: true,
   },
-  plugins: [
-    dts({
-      outputDir: 'dist/types',
-      staticImport: true,
-      insertTypesEntry: true,
-      logDiagnostics: true,
-    }),
-  ],
 }));
-
-function emptyDir(dir: string): void {
-  if (!existsSync(dir)) {
-    return;
-  }
-
-  for (const file of readdirSync(dir)) {
-    const abs = path.resolve(dir, file);
-
-    // baseline is Node 12 so can't use rmSync
-    if (lstatSync(abs).isDirectory()) {
-      emptyDir(abs);
-      rmdirSync(abs);
-    } else {
-      unlinkSync(abs);
-    }
-  }
-}
