@@ -28,7 +28,7 @@ export default defineConfig(() => ({
   },
   plugins: [
     dts({
-      outputDir: 'types',
+      outputDir: 'dist/types',
       staticImport: true,
       insertTypesEntry: true,
       logDiagnostics: true,
