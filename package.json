@@ -8,11 +8,11 @@
   "author": "Charles Badger",
   "license": "MIT",
   "scripts": {
-    "build": "vite build",
-    "build:watch": "vite build --watch",
-    "dev": "concurrently yarn:build:watch yarn:types:watch",
+    "build": "vite build && yarn type-check",
+    "build:watch": "vite build --watch --mode development",
+    "dev": "concurrently yarn:build:watch yarn:types:watch -c green,yellow",
     "type-check": "tsc",
-    "types:watch": "tsc --watch --skipLibCheck"
+    "types:watch": "tsc --watch --skipLibCheck --preserveWatchOutput"
   },
   "peerDependencies": {
     "react": "^17.0.2",

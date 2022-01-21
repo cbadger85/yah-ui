@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 
 const isExternal = (id: string) => !id.startsWith('.') && !path.isAbsolute(id);
 
-export default defineConfig(() => ({
+export default defineConfig(({ mode }) => ({
   esbuild: {
     jsxInject: "import React from 'react'",
   },
@@ -12,6 +12,7 @@ export default defineConfig(() => ({
       entry: path.resolve(__dirname, 'src/index.ts'),
       formats: ['es', 'cjs'],
     },
+    emptyOutDir: mode === 'production',
     rollupOptions: {
       external: isExternal,
       output: {
