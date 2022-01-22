@@ -15,6 +15,7 @@ const config = {
       isolatedModules: true,
     },
   },
+  testEnvironment: 'jsdom',
   transform: {
     '\\.(ts|js)x?$': 'ts-jest',
   },
@@ -27,7 +28,6 @@ const config = {
     'jest-watch-typeahead/filename',
     'jest-watch-typeahead/testname',
   ],
-  testTimeout: 10000, // optional
 };
 
 // eslint-disable-next-line no-undef

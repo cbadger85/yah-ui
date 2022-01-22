@@ -3,6 +3,8 @@
     "target": "ESNext",
     "jsx": "react-jsx",
 
+    "outDir": "dist",
+
     "module": "ESNext",
 
     "moduleResolution": "node",
@@ -12,7 +14,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
 
-    "noEmit": true,
+    // "noEmit": true,
 
     "strict": true,
     "noImplicitAny": true,
