@@ -20,7 +20,7 @@ function useGetSelectPropsFromFieldContext(id: string) {
     actions.registerComponent('field', { id });
 
     return () => actions.removeComponent('field');
-  }, [id, actions.registerComponent, actions.removeComponent]);
+  }, [id, actions]);
 
   return useCallback(
     (
@@ -35,7 +35,7 @@ function useGetSelectPropsFromFieldContext(id: string) {
         ),
       };
     },
-    [id, state.datalist?.id, state.validationMessages],
+    [id, state.validationMessages],
   );
 }
 

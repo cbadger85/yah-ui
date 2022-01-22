@@ -7,10 +7,7 @@
 
     "moduleResolution": "node",
     "isolatedModules": true,
-    "sourceMap": true,
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "declarationDir": "dist/types",
+
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -23,7 +20,7 @@
     "useUnknownInCatchVariables": true,
     "alwaysStrict": true,
     "noUncheckedIndexedAccess": true,
-    "allowUnreachableCode": true,
+    "allowUnreachableCode": false,
     "lib": ["DOM", "ESNext", "DOM.Iterable"]
   },
   "include": ["src"],

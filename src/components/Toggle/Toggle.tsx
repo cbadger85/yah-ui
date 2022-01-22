@@ -16,13 +16,13 @@ export interface ToggleProps extends ComponentPropsWithRef<'button'> {
 }
 
 function useGetTogglePropsFromFieldContext(id: string) {
-  const [state, actions] = useContext(FieldContext);
+  const [_, actions] = useContext(FieldContext);
 
   useEffect(() => {
     actions.registerComponent('field', { id });
 
     return () => actions.removeComponent('field');
-  }, [id, actions.registerComponent, actions.removeComponent]);
+  }, [id, actions]);
 
   return useCallback(
     (
@@ -34,7 +34,7 @@ function useGetTogglePropsFromFieldContext(id: string) {
         type: props.type ?? 'button',
       };
     },
-    [id, state.datalist?.id, state.validationMessages],
+    [id],
   );
 }
 

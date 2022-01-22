@@ -20,7 +20,7 @@ function useGetInputPropsFromFieldContext(id: string) {
     actions.registerComponent('field', { id });
 
     return () => actions.removeComponent('field');
-  }, [id, actions.registerComponent, actions.removeComponent]);
+  }, [id, actions]);
 
   return useCallback(
     (

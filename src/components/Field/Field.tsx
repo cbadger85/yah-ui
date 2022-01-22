@@ -1,13 +1,14 @@
 import { useFieldState, FieldActions, FieldState } from './state';
 import { createContext, ReactNode } from 'react';
+import { noop } from '../../utils';
 
 export const FieldContext = createContext<[FieldState, FieldActions]>([
   { validationMessages: [] },
   {
-    registerComponent() {},
-    removeComponent() {},
-    registerValidationMessage() {},
-    removeValidationMessage() {},
+    registerComponent: noop,
+    removeComponent: noop,
+    registerValidationMessage: noop,
+    removeValidationMessage: noop,
   },
 ]);
 

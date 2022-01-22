@@ -8,7 +8,7 @@ import {
   useEffect,
 } from 'react';
 
-export interface LabelProps extends ComponentPropsWithRef<'label'> {}
+export type LabelProps = ComponentPropsWithRef<'label'>;
 
 export function useGetLabelPropsFromFieldContext(id: string | undefined) {
   const [state, actions] = useContext(FieldContext);
@@ -19,7 +19,7 @@ export function useGetLabelPropsFromFieldContext(id: string | undefined) {
     actions.registerComponent('label', { id: labelId });
 
     return () => actions.removeComponent('label');
-  }, [labelId, actions.registerComponent, actions.removeComponent]);
+  }, [labelId, actions]);
 
   return useCallback(
     (
@@ -43,5 +43,10 @@ export const Label = forwardRef(function Label(
     props.id,
   );
 
+  /**
+   *  The control will be a sibling/child of the label, with accessible
+   *  identifiers passed through context.
+   */
+  // eslint-disable-next-line jsx-a11y/label-has-associated-control
   return <label ref={ref} {...getLabelPropsFromFieldContext(props)} />;
 });

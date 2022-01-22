@@ -26,7 +26,7 @@ function useGetValidationMessagePropsFromFieldContext<
     actions.registerValidationMessage({ id });
 
     return () => actions.removeValidationMessage(id);
-  }, [id, actions.registerValidationMessage, actions.removeValidationMessage]);
+  }, [id, actions]);
 
   return useCallback(
     (props?: ComponentPropsWithRef<E>): ComponentPropsWithRef<E> => {

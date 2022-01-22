@@ -8,7 +8,7 @@ import {
   useEffect,
 } from 'react';
 
-export interface DatalistProps extends ComponentPropsWithRef<'datalist'> {}
+export type DatalistProps = ComponentPropsWithRef<'datalist'>;
 
 function useGetDatalistPropsFromFieldContext(id: string) {
   const [_, actions] = useContext(FieldContext);
@@ -17,7 +17,7 @@ function useGetDatalistPropsFromFieldContext(id: string) {
     actions.registerComponent('datalist', { id });
 
     return () => actions.removeComponent('datalist');
-  }, [id, actions.registerComponent, actions.removeComponent]);
+  }, [id, actions]);
 
   return useCallback(
     (

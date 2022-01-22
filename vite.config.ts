@@ -1,7 +1,6 @@
 import path from 'path';
 import { defineConfig } from 'vite';
-
-const isExternal = (id: string) => !id.startsWith('.') && !path.isAbsolute(id);
+import checker from 'vite-plugin-checker';
 
 export default defineConfig(({ mode }) => ({
   esbuild: {
@@ -11,10 +10,11 @@ export default defineConfig(({ mode }) => ({
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
       formats: ['es', 'cjs'],
+      fileName: 'index',
     },
     emptyOutDir: mode === 'production',
     rollupOptions: {
-      external: isExternal,
+      external: (id) => !id.startsWith('.') && !path.isAbsolute(id),
       output: {
         sourcemapExcludeSources: true,
       },
@@ -23,4 +23,11 @@ export default defineConfig(({ mode }) => ({
     minify: false,
     sourcemap: true,
   },
+  plugins: [
+    mode === 'production' &&
+      checker({
+        typescript: true,
+        eslint: { files: ['./src'], extensions: ['.ts', '.tsx'] },
+      }),
+  ],
 }));
