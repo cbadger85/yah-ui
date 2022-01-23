@@ -9,7 +9,7 @@ const config = {
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}',
   ],
-  testEnvironment: 'jsdom',
+  testEnvironment: '@happy-dom/jest-environment',
   transform: {
     '\\.(ts|js)x?$': ['esbuild-runner/jest'],
   },
