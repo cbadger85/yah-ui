@@ -7,12 +7,6 @@ describe.each([
   ['<FieldButton />', FieldButton, 'button'],
   ['<Select />', Select, 'select'],
 ])('[%#] %s', (_, Component, element) => {
-  it('should generate a unique ID', () => {
-    render(<Component />);
-
-    expect(document.querySelector(element)?.id).toEqual(expect.any(String));
-  });
-
   it('should use the id passed in as a prop if provided', () => {
     const id = `${element}-id`;
     render(<Component id={id} />);
@@ -20,10 +14,17 @@ describe.each([
     expect(document.querySelector(element)?.id).toBe(id);
   });
 
-  it.each([true, false])(
-    '[%#] --> should set the aria-invalid attribute to the same value as the invalid prop [%s]',
-    (invalid) => {
-      render(<Component invalid={invalid} />);
+  it.each([
+    ['invalid', true],
+    ['invalid', false],
+    ['aria-invalid', true],
+    ['aria-invalid', false],
+  ])(
+    '[%#] --> should set the aria-invalid attribute to the same value as the %s prop [%s]',
+    (propName, invalid) => {
+      const componentProps = { [propName]: invalid };
+
+      render(<Component {...componentProps} />);
 
       expect(document.querySelector(element)).toHaveAttribute(
         'aria-invalid',
@@ -41,27 +42,30 @@ describe.each([
     );
   });
 
-  it('should set the aria-describedby attribute to the same value as the describedBy prop', () => {
-    const descriptionId = 'description-id';
-
-    render(<Component describedBy={descriptionId} />);
+  it('should use the invalid prop value if both invalid and aria-invalid are present', () => {
+    render(<Component invalid={false} aria-invalid />);
 
     expect(document.querySelector(element)).toHaveAttribute(
-      'aria-describedby',
-      descriptionId,
+      'aria-invalid',
+      String(false),
     );
   });
 
-  it('should set the aria-describedby attribute to the same value as the aria-describedby prop', () => {
-    const descriptionId = 'description-id';
+  it.each(['describedBy', 'aria-describedby'])(
+    '[%#] --> should set the aria-describedby attribute to the same value as the %s prop',
+    (propName) => {
+      const descriptionId = 'description-id';
 
-    render(<Component aria-describedby={descriptionId} />);
+      const props = { [propName]: descriptionId };
 
-    expect(document.querySelector(element)).toHaveAttribute(
-      'aria-describedby',
-      descriptionId,
-    );
-  });
+      render(<Component {...props} />);
+
+      expect(document.querySelector(element)).toHaveAttribute(
+        'aria-describedby',
+        descriptionId,
+      );
+    },
+  );
 
   it('should combine the aria-describedby and describedBy attribute if both are present', () => {
     const descriptionId1 = 'description-id-1';

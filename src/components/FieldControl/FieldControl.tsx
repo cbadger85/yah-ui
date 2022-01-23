@@ -35,7 +35,7 @@ function fieldControlFactory<E extends ElementType>(as?: E) {
         props['aria-describedby'],
         ...state.validationMessages.map(({ id }) => id),
       ),
-      ['aria-invalid']: props['aria-invalid'] ?? invalid,
+      ['aria-invalid']: invalid ?? props['aria-invalid'],
     } as ComponentPropsWithRef<E>;
 
     return <Component ref={ref} {...componentProps} />;

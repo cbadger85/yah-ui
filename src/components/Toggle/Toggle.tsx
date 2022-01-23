@@ -14,11 +14,12 @@ export const Toggle = forwardRef(function Toggle(
 ) {
   const buttonProps: FieldButtonProps = {
     ...props,
-    ['aria-checked']: checked,
+    ['aria-checked']: checked ?? !!props['aria-checked'],
     onClick(e) {
       props.onClick?.(e);
-      onToggle?.(!!checked);
+      onToggle?.(!checked);
     },
   };
+
   return <FieldButton ref={ref} {...buttonProps} />;
 });
