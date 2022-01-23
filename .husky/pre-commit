@@ -3,4 +3,11 @@
 
 echo "Let me just clean that up real quick..."
 
+# git diff --name-only --cached
+
+OUTPUT=$(git diff --name-only --cached)
+echo "${OUTPUT}"
+
+exit 1
+
 yarn prettier --write src/*

@@ -13,6 +13,8 @@
     "build-types": "tsc --project tsconfig.build.json",
     "build-types:watch": "tsc --watch --preserveWatchOutput",
     "dev": "concurrently yarn:build:watch yarn:build-types:watch -c green,yellow",
+    "format": "prettier --write .",
+    "format:src": "prettier --write src/*",
     "start:ci": "yarn lint && yarn test && yarn build",
     "lint": "eslint src/*",
     "prepare": "husky install",
