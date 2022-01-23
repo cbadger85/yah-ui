@@ -10,8 +10,3 @@ export type RecursivePartial<T> = {
 
 export type PolymorphicProps<E extends ElementType, P> = P &
   Omit<ComponentPropsWithRef<E>, keyof P>;
-
-export interface BaseFieldComponentProps {
-  invalid?: boolean;
-  describedBy?: string;
-}

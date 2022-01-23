@@ -1,6 +1,6 @@
 import { isTruthy, isString } from './typeGuards';
 
-export function mergeAttributes(...ids: (string | undefined | null)[]) {
+export function mergeAttributes(...ids: unknown[]) {
   const validIds = ids
     .filter(isString)
     .map((id) => id.trim())

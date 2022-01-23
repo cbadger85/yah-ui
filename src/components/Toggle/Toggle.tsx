@@ -1,5 +1,5 @@
 import { ComponentPropsWithRef, forwardRef } from 'react';
-import { FieldButton, FieldButtonProps } from '../FieldButton';
+import { FieldButton, FieldButtonProps } from '../FieldControl';
 
 export interface ToggleProps extends ComponentPropsWithRef<'button'> {
   checked?: boolean;

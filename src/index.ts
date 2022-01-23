@@ -5,14 +5,17 @@ export type {
   FieldState,
 } from './components/Field';
 
-export { Input } from './components/Input';
-export type { InputProps } from './components/Input';
+export { Input, Select, FieldButton } from './components/FieldControl';
+export type {
+  FieldControlOwnProps,
+  FieldControlProps,
+  InputProps,
+  FieldButtonProps,
+  SelectProps,
+} from './components/FieldControl';
 
 export { Label } from './components/Label';
 export type { LabelProps } from './components/Label';
-
-export { Select } from './components/Select';
-export type { SelectProps } from './components/Select';
 
 export { Toggle } from './components/Toggle';
 export type { ToggleProps } from './components/Toggle';
