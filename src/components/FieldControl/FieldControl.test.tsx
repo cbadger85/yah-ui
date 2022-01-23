@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
-import { Input, FieldButton, Select } from '../FieldControl';
 import React from 'react';
+import { FieldButton, Input, Select } from '../FieldControl';
 
 describe.each([
   ['<Input />', Input, 'input'],

@@ -10,9 +10,11 @@
   "scripts": {
     "build": "vite build && yarn build-types",
     "build:watch": "vite build --watch --mode development",
-    "build-types": "tsc --skipLibCheck --project tsconfig.build.json",
+    "build-types": "tsc --project tsconfig.build.json",
     "build-types:watch": "tsc --watch --preserveWatchOutput",
     "dev": "concurrently yarn:build:watch yarn:build-types:watch -c green,yellow",
+    "start:ci": "yarn lint && yarn test && yarn build",
+    "lint": "eslint src/*",
     "test": "jest --silent --watchAll=false",
     "test:watch": "jest --watch",
     "test:coverage": "yarn test --coverage"
@@ -22,8 +24,6 @@
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@swc/core": "^1.2.133",
-    "@swc/jest": "^0.2.17",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
@@ -34,6 +34,7 @@
     "@typescript-eslint/eslint-plugin": "^5.10.0",
     "@typescript-eslint/parser": "^5.10.0",
     "concurrently": "^7.0.0",
+    "esbuild-runner": "^2.2.1",
     "eslint": "^8.7.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-jest": "^25.7.0",
@@ -48,7 +49,7 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "typescript": "^4.5.4",
-    "vite": "^2.7.13",
-    "vite-plugin-checker": "^0.3.4"
-  }
+    "vite": "^2.7.13"
+  },
+  "dependencies": {}
 }

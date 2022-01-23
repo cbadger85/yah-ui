@@ -11,25 +11,7 @@ const config = {
   ],
   testEnvironment: 'jsdom',
   transform: {
-    '\\.(ts|js)x?$': [
-      '@swc/jest',
-      {
-        sourceMaps: true,
-        jsc: {
-          parser: {
-            syntax: 'typescript',
-            tsx: true,
-            decorators: false,
-            dynamicImport: false,
-          },
-          transform: {
-            react: {
-              runtime: 'automatic',
-            },
-          },
-        },
-      },
-    ],
+    '\\.(ts|js)x?$': ['esbuild-runner/jest'],
   },
   transformIgnorePatterns: [
     '[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs|cjs|ts|tsx)$',

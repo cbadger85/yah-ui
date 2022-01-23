@@ -5,9 +5,7 @@
 
     "declaration": true,
     "emitDeclarationOnly": true,
-    "declarationDir": "dist/types",
-
-    "skipLibCheck": true // `vite-plugin-checker` runs code analysis already, so the compilier doesn't need to do it again
+    "declarationDir": "dist/types"
   },
   "exclude": ["src/setupTests.ts", "src/**/*.test.ts", "src/**/*.test.tsx"]
 }

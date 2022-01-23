@@ -1,4 +1,4 @@
-import {
+import React, {
   ComponentPropsWithRef,
   ElementType,
   forwardRef,
@@ -7,7 +7,6 @@ import {
 import { PolymorphicProps } from '../../types';
 import { mergeAttributes } from '../../utils';
 import { FieldContext } from '../Field';
-import React from 'react';
 
 export interface FieldControlOwnProps {
   invalid?: boolean;

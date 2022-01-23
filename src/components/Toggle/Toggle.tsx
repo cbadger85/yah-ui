@@ -1,4 +1,4 @@
-import { ComponentPropsWithRef, forwardRef } from 'react';
+import React, { ComponentPropsWithRef, forwardRef } from 'react';
 import { FieldButton, FieldButtonProps } from '../FieldControl';
 
 export interface ToggleProps extends ComponentPropsWithRef<'button'> {

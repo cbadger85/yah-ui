@@ -1,4 +1,4 @@
-import { ComponentPropsWithRef, forwardRef, useContext } from 'react';
+import React, { ComponentPropsWithRef, forwardRef, useContext } from 'react';
 import { FieldContext } from '../Field';
 
 export type LabelProps = ComponentPropsWithRef<'label'>;

@@ -1,13 +1,9 @@
-import path from 'path';
-import checker from 'vite-plugin-checker';
-import { defineConfig, Plugin } from 'vite';
 import fs from 'fs';
+import path from 'path';
+import { defineConfig, Plugin } from 'vite';
 import pkg from './package.json';
 
 export default defineConfig(({ mode }) => ({
-  esbuild: {
-    jsxInject: "import React from 'react'",
-  },
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/index.ts'),
@@ -23,16 +19,8 @@ export default defineConfig(({ mode }) => ({
     outDir: 'dist',
     minify: false,
     sourcemap: true,
-    emptyOutDir: mode === 'production',
   },
-  plugins: [
-    mode === 'production' &&
-      checker({
-        typescript: true,
-        eslint: { files: ['./src'], extensions: ['.ts', '.tsx'] },
-      }),
-    mode === 'development' && sourceDts(),
-  ],
+  plugins: [mode === 'development' && sourceDts()],
 }));
 
 const fsPromises = fs.promises;
@@ -46,19 +34,17 @@ const fsPromises = fs.promises;
 function sourceDts(): Plugin {
   let dtsModule: string | undefined;
   let typePath: string | undefined;
-  let isGenerated = false;
+  let outputFileNames: string[] = [];
 
   return {
-    name: 'dev-dts',
+    name: 'source-dts',
     apply: 'build',
     async configResolved(config) {
-      dtsModule = undefined;
-      typePath = undefined;
-      isGenerated = false;
-
       const { logger } = config;
       const { outDir } = config.build;
-      const { entry } = config.build.lib || {};
+      const { entry, formats, fileName } = config.build.lib || {};
+
+      outputFileNames = formats.map((format) => `${fileName}.${format}.js`);
 
       if (!entry) {
         return logger.warn(
@@ -92,16 +78,22 @@ function sourceDts(): Plugin {
 
       typePath = path.relative(outDir, pkg.types);
     },
-    generateBundle() {
-      if (!isGenerated && typePath && dtsModule) {
+    generateBundle(_, bundle) {
+      const filename = Object.keys(bundle)[0];
+
+      // This make sure this file is only emitted when the first JS
+      // bundle is created and not for each bundle. This prevents the
+      // types from being emitted multiple times.
+      const isFirstBundle =
+        outputFileNames.length && outputFileNames[0] === filename;
+
+      if (isFirstBundle && typePath && dtsModule) {
         this.emitFile({
           type: 'asset',
           fileName: typePath,
           source: dtsModule,
         });
       }
-
-      isGenerated = true;
     },
   };
 }
