@@ -15,10 +15,10 @@
     "dev": "concurrently yarn:build:watch yarn:build-types:watch -c green,yellow",
     "start:ci": "yarn lint && yarn test && yarn build",
     "lint": "eslint src/*",
+    "prepare": "husky install",
     "test": "jest --silent --watchAll=false",
     "test:watch": "jest --watch",
-    "test:coverage": "yarn test --coverage",
-    "prepare": "husky install"
+    "test:coverage": "yarn test --coverage"
   },
   "peerDependencies": {
     "react": "^17.0.2",

@@ -1,4 +1,6 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+echo "Let me just clean that up real quick..."
+
 yarn prettier --write src/*
