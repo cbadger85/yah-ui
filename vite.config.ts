@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => ({
     outDir: 'dist',
     minify: false,
     sourcemap: true,
+    emptyOutDir: mode === 'production',
   },
   plugins: [
     mode === 'production' &&

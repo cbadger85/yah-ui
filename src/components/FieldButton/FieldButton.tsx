@@ -3,16 +3,16 @@ import { BaseFieldComponentProps } from '../../types';
 import { mergeAttributes } from '../../utils';
 import { FieldContext } from '../Field';
 
-export type SelectProps = ComponentPropsWithRef<'select'> &
+export type FieldButtonProps = ComponentPropsWithRef<'button'> &
   BaseFieldComponentProps;
 
-export const Select = forwardRef(function Select(
-  { invalid, describedBy, ...props }: SelectProps,
-  ref: ComponentPropsWithRef<'select'>['ref'],
+export const FieldButton = forwardRef(function FieldButton(
+  { invalid, describedBy, ...props }: FieldButtonProps,
+  ref: ComponentPropsWithRef<'button'>['ref'],
 ) {
   const [state] = useContext(FieldContext);
 
-  const selectProps: ComponentPropsWithRef<'select'> = {
+  const inputProps: ComponentPropsWithRef<'button'> = {
     ...props,
     id: props.id ?? state.field.id,
     ['aria-describedby']: mergeAttributes(
@@ -23,5 +23,5 @@ export const Select = forwardRef(function Select(
     ['aria-invalid']: props['aria-invalid'] ?? invalid,
   };
 
-  return <select ref={ref} {...selectProps} />;
+  return <button ref={ref} {...inputProps} />;
 });

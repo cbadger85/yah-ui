@@ -1,61 +1,27 @@
+import { ComponentPropsWithRef, forwardRef, useContext } from 'react';
+import { BaseFieldComponentProps } from '../../types';
+import { mergeAttributes } from '../../utils';
 import { FieldContext } from '../Field';
-import { useGenerateUniqueIdOrDefault } from '../../hooks';
-import {
-  ComponentPropsWithRef,
-  forwardRef,
-  useCallback,
-  useContext,
-  useEffect,
-} from 'react';
-import { mergeIds } from '../../utils';
 
-export interface InputProps extends ComponentPropsWithRef<'input'> {
-  invalid?: boolean;
-}
-
-function useGetInputPropsFromFieldContext(id: string) {
-  const [state, actions] = useContext(FieldContext);
-
-  useEffect(() => {
-    actions.registerComponent('field', { id });
-
-    return () => actions.removeComponent('field');
-  }, [id, actions]);
-
-  return useCallback(
-    (
-      props: ComponentPropsWithRef<'input'> = {},
-    ): ComponentPropsWithRef<'input'> => {
-      return {
-        ...props,
-        id,
-        list: props.list ?? state.datalist?.id,
-        ['aria-describedby']: mergeIds(
-          props['aria-describedby'],
-          ...state.validationMessages.map(({ id }) => id),
-        ),
-      };
-    },
-    [id, state.datalist?.id, state.validationMessages],
-  );
-}
+export type InputProps = ComponentPropsWithRef<'input'> &
+  BaseFieldComponentProps;
 
 export const Input = forwardRef(function Input(
-  { invalid, ...props }: InputProps,
+  { invalid, describedBy, ...props }: InputProps,
   ref: ComponentPropsWithRef<'input'>['ref'],
 ) {
-  const id = useGenerateUniqueIdOrDefault(props.id, {
-    generatedIdPrefix: 'input',
-  });
-  const getInputPropsFromFieldContext = useGetInputPropsFromFieldContext(id);
+  const [state] = useContext(FieldContext);
 
-  return (
-    <input
-      ref={ref}
-      {...getInputPropsFromFieldContext({
-        ...props,
-        ['aria-invalid']: props['aria-invalid'] ?? invalid,
-      })}
-    />
-  );
+  const inputProps: ComponentPropsWithRef<'input'> = {
+    ...props,
+    id: props.id ?? state.field.id,
+    ['aria-describedby']: mergeAttributes(
+      describedBy,
+      props['aria-describedby'],
+      ...state.validationMessages.map(({ id }) => id),
+    ),
+    ['aria-invalid']: props['aria-invalid'] ?? invalid,
+  };
+
+  return <input ref={ref} {...inputProps} />;
 });

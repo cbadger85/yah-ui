@@ -1,51 +1,18 @@
-import { useCallback, useReducer } from 'react';
-
-export interface FieldData {
-  id: string;
-}
-
-export interface LabelData {
-  id: string;
-}
-
-export interface DatalistData {
-  id: string;
-}
+import { useCallback, useMemo, useReducer } from 'react';
 
 export interface ValidationMessageData {
   id: string;
 }
 
 export interface FieldState {
-  field?: FieldData;
-  label?: LabelData;
-  datalist?: DatalistData;
   validationMessages: ValidationMessageData[];
 }
 
+export type FieldComponent = 'field' | 'label';
+
 export interface FieldActions {
-  registerComponent: <T extends 'field' | 'label' | 'datalist'>(
-    componentType: T,
-    props: FieldState[T],
-  ) => void;
-  removeComponent: (componentType: 'field' | 'label' | 'datalist') => void;
   registerValidationMessage: (props: ValidationMessageData) => void;
   removeValidationMessage: (id: string) => void;
-}
-
-export interface RegisterComponentAction {
-  type: 'registerComponent';
-  payload:
-    | ({ componentType: 'field' } & FieldData)
-    | ({ componentType: 'label' } & LabelData)
-    | ({ componentType: 'datalist' } & DatalistData);
-}
-
-export interface RemoveComponentAction {
-  type: 'removeComponent';
-  payload: {
-    componentType: 'field' | 'label' | 'datalist';
-  };
 }
 
 export interface RegisterValidationMessageAction {
@@ -59,25 +26,14 @@ export interface RemoveValidationMessageAction {
 }
 
 export type FieldStateAction =
-  | RegisterComponentAction
-  | RemoveComponentAction
   | RegisterValidationMessageAction
   | RemoveValidationMessageAction;
 
-function fieldStateReducer(
+export function fieldStateReducer(
   state: FieldState,
   action: FieldStateAction,
 ): FieldState {
   switch (action.type) {
-    case 'registerComponent':
-      return {
-        ...state,
-        [action.payload.componentType]: action.payload,
-      };
-
-    case 'removeComponent':
-      return { ...state, [action.payload.componentType]: undefined };
-
     case 'registerValidationMessage':
       return action.payload.id
         ? {
@@ -107,24 +63,6 @@ export function useFieldState(
     ...initialState,
   });
 
-  const registerComponent = useCallback(
-    <T extends 'field' | 'label' | 'datalist'>(
-      componentType: T,
-      props: FieldState[T],
-    ) =>
-      dispatch({
-        type: 'registerComponent',
-        payload: { componentType, ...props },
-      } as RegisterComponentAction),
-    [],
-  );
-
-  const removeComponent = useCallback(
-    (componentType: 'field' | 'label' | 'datalist') =>
-      dispatch({ type: 'removeComponent', payload: { componentType } }),
-    [],
-  );
-
   const registerValidationMessage = useCallback(
     (props: ValidationMessageData) =>
       dispatch({
@@ -140,13 +78,13 @@ export function useFieldState(
     [],
   );
 
-  return [
-    state,
-    {
-      registerComponent,
-      removeComponent,
+  const actions = useMemo(
+    () => ({
       registerValidationMessage,
       removeValidationMessage,
-    },
-  ];
+    }),
+    [registerValidationMessage, removeValidationMessage],
+  );
+
+  return [state, actions];
 }

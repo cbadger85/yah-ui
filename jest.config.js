@@ -28,6 +28,7 @@ const config = {
     'jest-watch-typeahead/filename',
     'jest-watch-typeahead/testname',
   ],
+  testTimeout: 10000,
 };
 
 // eslint-disable-next-line no-undef

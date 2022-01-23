@@ -1,67 +1,24 @@
-import { FieldContext } from '../Field';
-import { useGenerateUniqueIdOrDefault } from '../../hooks';
-import {
-  ComponentPropsWithRef,
-  forwardRef,
-  MouseEvent,
-  useCallback,
-  useContext,
-  useEffect,
-} from 'react';
+import { ComponentPropsWithRef, forwardRef } from 'react';
+import { FieldButton, FieldButtonProps } from '../FieldButton';
 
 export interface ToggleProps extends ComponentPropsWithRef<'button'> {
   checked?: boolean;
   onToggle?: (checked: boolean) => void;
   invalid?: boolean;
-}
-
-function useGetTogglePropsFromFieldContext(id: string) {
-  const [_, actions] = useContext(FieldContext);
-
-  useEffect(() => {
-    actions.registerComponent('field', { id });
-
-    return () => actions.removeComponent('field');
-  }, [id, actions]);
-
-  return useCallback(
-    (
-      props: ComponentPropsWithRef<'button'> = {},
-    ): ComponentPropsWithRef<'button'> => {
-      return {
-        ...props,
-        id,
-        type: props.type ?? 'button',
-      };
-    },
-    [id],
-  );
+  describedBy?: string;
 }
 
 export const Toggle = forwardRef(function Toggle(
-  { checked, onToggle, invalid, ...props }: ToggleProps,
+  { checked, onToggle, ...props }: ToggleProps,
   ref: ComponentPropsWithRef<'button'>['ref'],
 ) {
-  const id = useGenerateUniqueIdOrDefault(props.id, {
-    generatedIdPrefix: 'toggle',
-  });
-  const getTogglePropsFromFieldContext = useGetTogglePropsFromFieldContext(id);
-
-  function handleClick(e: MouseEvent<HTMLButtonElement>) {
-    props.onClick?.(e);
-    onToggle?.(!checked);
-  }
-
-  return (
-    <button
-      ref={ref}
-      {...getTogglePropsFromFieldContext({
-        ...props,
-        role: props.role ?? 'switch',
-        ['aria-checked']: props['aria-checked'] ?? checked,
-        ['aria-invalid']: props['aria-invalid'] ?? invalid,
-        onClick: handleClick,
-      })}
-    />
-  );
+  const buttonProps: FieldButtonProps = {
+    ...props,
+    ['aria-checked']: checked,
+    onClick(e) {
+      props.onClick?.(e);
+      onToggle?.(!!checked);
+    },
+  };
+  return <FieldButton ref={ref} {...buttonProps} />;
 });

@@ -1,12 +1,6 @@
-export { Datalist } from './components/Datalist';
-export type { DatalistProps } from './components/Datalist';
-
 export { Field } from './components/Field';
 export type {
   FieldProps,
-  DatalistData,
-  FieldData,
-  LabelData,
   ValidationMessageData,
   FieldState,
 } from './components/Field';

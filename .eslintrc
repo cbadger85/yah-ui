@@ -27,7 +27,7 @@
   },
   "rules": {
     "react/react-in-jsx-scope": "off",
-    "no-console": "warn",
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
     "no-unused-expressions": "off",
     "no-param-reassign": [
       2,
