@@ -5,7 +5,7 @@
 # Get's the changed files from git, filter list to only files with extensions supported by prettier, then separate the list by space.
 DIFF_VALUES=$(git diff --name-only --cached | egrep '\.ts$|\.tsx$|\.js$|\.jsx$|\.vue$|\.json$|\.css$|\.scss$|\.less$|\.html$|\.htm$|\.md$|\.mdx$|\.yml$|\.yaml$|\.graphql$|\.gql$' | tr "\n" " ")
 
-if [ -z "$DIFF_VALUES"]
+if [ -z "$DIFF_VALUES" ]
 then
   exit 0
 else
