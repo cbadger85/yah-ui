@@ -1,12 +1,12 @@
 import React, { ComponentPropsWithRef, forwardRef } from 'react';
 import { FieldButton, FieldButtonProps } from '../FieldControl';
 
-export interface ToggleProps extends ComponentPropsWithRef<'button'> {
+export type ToggleProps = ComponentPropsWithRef<'button'> & {
   checked?: boolean;
   onToggle?: (checked: boolean) => void;
   invalid?: boolean;
   describedBy?: string;
-}
+};
 
 export const Toggle = forwardRef(function Toggle(
   { checked, onToggle, ...props }: ToggleProps,

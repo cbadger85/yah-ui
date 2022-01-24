@@ -10,10 +10,9 @@
   "scripts": {
     "build": "vite build && yarn build-types",
     "build:watch": "vite build --watch --mode development",
-    "build-types": "tsc --project tsconfig.build.json",
+    "build-types": "tsup && prettier --write dist/types/index.d.ts",
     "build-types:watch": "tsc --watch --preserveWatchOutput",
     "dev": "concurrently yarn:build:watch yarn:build-types:watch -c green,yellow",
-    "format": "prettier",
     "start:ci": "yarn lint && yarn test && yarn build",
     "lint": "eslint src/*",
     "prepare": "husky install",
@@ -53,6 +52,7 @@
     "prettier-eslint": "^13.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "tsup": "^5.11.11",
     "typescript": "^4.5.4",
     "vite": "^2.7.13"
   }

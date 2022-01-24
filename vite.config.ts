@@ -3,25 +3,27 @@ import path from 'path';
 import { defineConfig, Plugin } from 'vite';
 import pkg from './package.json';
 
-export default defineConfig(({ mode }) => ({
-  build: {
-    lib: {
-      entry: path.resolve(__dirname, 'src/index.ts'),
-      formats: ['es', 'cjs'],
-      fileName: 'index',
-    },
-    rollupOptions: {
-      external: (id) => !id.startsWith('.') && !path.isAbsolute(id),
-      output: {
-        sourcemapExcludeSources: true,
+export default defineConfig(({ mode }) => {
+  return {
+    build: {
+      lib: {
+        entry: path.resolve(__dirname, 'src/index.ts'),
+        formats: ['es', 'cjs'],
+        fileName: 'index',
       },
+      rollupOptions: {
+        external: (id) => !id.startsWith('.') && !path.isAbsolute(id),
+        output: {
+          sourcemapExcludeSources: true,
+        },
+      },
+      outDir: 'dist',
+      minify: false,
+      sourcemap: true,
     },
-    outDir: 'dist',
-    minify: false,
-    sourcemap: true,
-  },
-  plugins: [mode === 'development' && sourceDts()],
-}));
+    plugins: [mode === 'development' && sourceDts()],
+  };
+});
 
 const fsPromises = fs.promises;
 
