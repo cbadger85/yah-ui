@@ -8,14 +8,13 @@
   "author": "Charles Badger",
   "license": "MIT",
   "scripts": {
-    "build": "vite build && yarn build-types",
+    "build": "vite build",
     "build:watch": "vite build --watch --mode development",
-    "build-types": "tsup && prettier --write dist/types/index.d.ts",
-    "build-types:watch": "tsc --watch --preserveWatchOutput",
-    "dev": "concurrently yarn:build:watch yarn:build-types:watch -c green,yellow",
-    "start:ci": "yarn lint && yarn test && yarn build",
+    "types:watch": "tsc --watch --preserveWatchOutput",
+    "dev": "concurrently yarn:build:watch yarn:types:watch -c green,yellow",
     "lint": "eslint src/*",
     "prepare": "husky install",
+    "start:ci": "CI=true yarn lint && yarn test && yarn build",
     "test": "jest --silent --watchAll=false",
     "test:watch": "jest --watch",
     "test:coverage": "yarn test --coverage"
