@@ -3,11 +3,7 @@
 
 echo "Let me just clean that up real quick..."
 
-# git diff --name-only --cached
 
-OUTPUT=$(git diff --name-only --cached)
-echo "${OUTPUT}"
+DIFF_VALUES=$(git diff --name-only --cached | egrep '\.ts$|\.tsx$|\.js$|\.jsx$|\.json$|\.css$|\.scss$|\.html$|\.htm$|\.md$|\.mdx$|\.yml$|\.yaml$' | tr "\n" " ")
 
-exit 1
-
-yarn prettier --write src/*
+yarn prettier --write $DIFF_VALUES
