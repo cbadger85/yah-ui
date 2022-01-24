@@ -4,8 +4,8 @@ import { ValidationMessage } from '.';
 
 describe('<Validation Message />', () => {
   it('should set the id to a generated value if no id is provided', () => {
-    const testId = "testid";
-    const {getByTestId} = render(<ValidationMessage data-testid={testId} />);
+    const testId = 'testid';
+    const { getByTestId } = render(<ValidationMessage data-testid={testId} />);
 
     const messageId = getByTestId(testId).id;
 
@@ -30,25 +30,22 @@ describe('<Validation Message />', () => {
     const testId = 'testid';
     const { getByTestId } = render(<ValidationMessage data-testid={testId} />);
 
-
     expect(getByTestId(testId)).toHaveAttribute('aria-live', 'polite');
   });
 
-    it('should be a span element by default', () => {
-      const testId = 'testid';
-      const { getByTestId } = render(
-        <ValidationMessage data-testid={testId} />,
-      );
+  it('should be a span element by default', () => {
+    const testId = 'testid';
+    const { getByTestId } = render(<ValidationMessage data-testid={testId} />);
 
-      expect(getByTestId(testId)).toBeInstanceOf(HTMLSpanElement);
-    });
+    expect(getByTestId(testId)).toBeInstanceOf(HTMLSpanElement);
+  });
 
-        it('should become the provided element type', () => {
-          const testId = 'testid';
-          const { getByTestId } = render(
-            <ValidationMessage data-testid={testId} as="div" />,
-          );
+  it('should become the provided element type', () => {
+    const testId = 'testid';
+    const { getByTestId } = render(
+      <ValidationMessage data-testid={testId} as="div" />,
+    );
 
-          expect(getByTestId(testId)).toBeInstanceOf(HTMLDivElement);
-        });
+    expect(getByTestId(testId)).toBeInstanceOf(HTMLDivElement);
+  });
 });

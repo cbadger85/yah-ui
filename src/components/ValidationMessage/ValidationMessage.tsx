@@ -25,7 +25,9 @@ export const ValidationMessage = forwardRef(function ValidationMessage<
   const [state, { registerValidationMessage, removeValidationMessage }] =
     useContext(FieldContext);
 
-  const generatedId = useGenerateUniqueId('validation').concat(state.baseId || '');
+  const generatedId = useGenerateUniqueId('validation').concat(
+    state.baseId || '',
+  );
   const id = props?.id || generatedId;
 
   useEffect(() => {

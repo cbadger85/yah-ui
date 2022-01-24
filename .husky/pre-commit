@@ -12,4 +12,5 @@ else
   echo "🔧  Formatting committed files..."
   ./node_modules/.bin/prettier --write $DIFF_VALUES
   echo "✅  Formatting complete!"
+  git add .
 fi  
