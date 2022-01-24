@@ -7,7 +7,7 @@ import path from 'path';
  *  into a single file for easy use.
  */
 export default defineConfig({
-  entry: { ['index']: path.resolve(__dirname, 'src/index.ts') },
+  entry: [path.resolve(__dirname, 'src/index.ts')],
   outDir: 'dist/types',
   dts: {
     only: true,

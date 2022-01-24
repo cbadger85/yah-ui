@@ -8,18 +8,20 @@ export type ToggleProps = ComponentPropsWithRef<'button'> & {
   describedBy?: string;
 };
 
-export const Toggle = forwardRef(function Toggle(
-  { checked, onToggle, ...props }: ToggleProps,
-  ref: ComponentPropsWithRef<'button'>['ref'],
-) {
-  const buttonProps: FieldButtonProps = {
-    ...props,
-    ['aria-checked']: checked ?? !!props['aria-checked'],
-    onClick(e) {
-      props.onClick?.(e);
-      onToggle?.(!checked);
-    },
-  };
+export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
+  function Toggle(
+    { checked, onToggle, ...props }: ToggleProps,
+    ref: ComponentPropsWithRef<'button'>['ref'],
+  ) {
+    const buttonProps: FieldButtonProps = {
+      ...props,
+      ['aria-checked']: checked ?? !!props['aria-checked'],
+      onClick(e) {
+        props.onClick?.(e);
+        onToggle?.(!checked);
+      },
+    };
 
-  return <FieldButton ref={ref} {...buttonProps} />;
-});
+    return <FieldButton ref={ref} {...buttonProps} />;
+  },
+);

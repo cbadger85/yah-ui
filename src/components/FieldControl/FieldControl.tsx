@@ -19,10 +19,10 @@ export type FieldControlProps<E extends ElementType> = PolymorphicProps<
 >;
 
 function fieldControlFactory<E extends ElementType>(as?: E) {
-  return forwardRef(function FieldControl(
-    { invalid, describedBy, ...props }: FieldControlProps<E>,
-    ref: ComponentPropsWithRef<E>['ref'],
-  ) {
+  return forwardRef<
+    E extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[E] : never,
+    FieldControlProps<E>
+  >(function FieldControl({ invalid, describedBy, ...props }, ref) {
     const [state] = useContext(FieldContext);
 
     const Component = as || 'input';

@@ -45,6 +45,8 @@ export const ValidationMessage = forwardRef(function ValidationMessage<
   } as ComponentPropsWithRef<E>;
 
   return <Component ref={ref} {...componentProps} />;
+  // The implicit return type is a little complicated to understand, so this
+  // fuction is typed with a more open, but easier to understand type.
 }) as <E extends ElementType = 'span'>(
   props: ValidationMessageProps<E>,
 ) => JSX.Element;
