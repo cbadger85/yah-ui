@@ -9,7 +9,7 @@ if [ -z "$DIFF_VALUES"]
 then
   exit 0
 else
-  echo "🖍️  Formatting committed files..."
+  echo "🖍️ Formatting committed files..."
   ./node_modules/.bin/prettier --write $DIFF_VALUES
-  echo "✅  Formatting complete!"
+  echo "✅ Formatting complete!"
 fi  
