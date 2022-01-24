@@ -6,4 +6,4 @@ echo "Let me just clean that up real quick..."
 
 DIFF_VALUES=$(git diff --name-only --cached | egrep '\.ts$|\.tsx$|\.js$|\.jsx$|\.json$|\.css$|\.scss$|\.html$|\.htm$|\.md$|\.mdx$|\.yml$|\.yaml$' | tr "\n" " ")
 
-yarn prettier --write $DIFF_VALUES
+./node_modules/.bin/prettier --write $DIFF_VALUES
