@@ -4,7 +4,8 @@
     "module": "esnext",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "downlevelIteration": true
   },
-  "include": ["vite.config.ts", "package.json", ".vite/**/*"]
+  "include": ["rollup.config.ts"]
 }
