@@ -1,5 +1,4 @@
-import { mergeAttributes } from '.';
-import { identity } from './common';
+import { identity, mergeAttributes } from './common';
 
 describe('identity', () => {
   it('should return the value provided', () => {
@@ -30,5 +29,11 @@ describe('mergeAttributes', () => {
     expect(
       mergeAttributes(false && 'test-string-2', null, {}, [], null, undefined),
     ).toBeUndefined();
+  });
+
+  it('should remove duplicate strings', () => {
+    expect(mergeAttributes('test-string-1', 'test-string-1')).toBe(
+      'test-string-1',
+    );
   });
 });

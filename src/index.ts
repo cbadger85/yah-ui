@@ -29,3 +29,5 @@ export {
   generateUniqueId,
   useIsomorphicLayoutEffect,
 } from './hooks';
+
+export { mergeAttributes } from './utils';
