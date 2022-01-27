@@ -9,18 +9,16 @@ export interface FieldProps {
 
 export function Field({ children }: FieldProps) {
   const [state, actions] = useFieldState();
-  const id = useGenerateUniqueId();
-  const fieldId = 'field-'.concat(id);
-  const labelId = 'label-'.concat(id);
+  const fieldControlId = useGenerateUniqueId('field-control');
+  const labelId = useGenerateUniqueId('label');
 
   return (
     <FieldContext.Provider
       value={[
         {
           ...state,
-          field: { id: fieldId },
+          fieldControl: { id: fieldControlId },
           label: { id: labelId },
-          baseId: id,
         },
         actions,
       ]}

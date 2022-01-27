@@ -12,10 +12,14 @@ const externals = new Set([
   ...builtinModules,
 ]);
 
+const baseConfig = defineConfig({
+  input: path.join(__dirname, 'src/index.ts'),
+  external: (id) => externals.has(id),
+});
+
 export default [
   defineConfig({
-    input: path.join(__dirname, 'src/index.ts'),
-    external: (id) => externals.has(id),
+    ...baseConfig,
     output: [
       { file: 'dist/index.es.js', format: 'es' },
       { file: 'dist/index.cjs.cjs', format: 'cjs' },
@@ -23,12 +27,8 @@ export default [
     plugins: [del({ targets: 'dist/*', runOnce: true }), esbuild()],
   }),
   defineConfig({
-    input: path.join(__dirname, 'src/index.ts'),
-    external: (id) => externals.has(id),
-    output: [
-      { file: 'dist/index.es.d.ts', format: 'es' },
-      { file: 'dist/index.js.d.ts', format: 'cjs' },
-    ],
+    ...baseConfig,
+    output: [{ file: 'dist/index.d.ts' }],
     plugins: [dts()],
   }),
 ];

@@ -3,13 +3,12 @@ import { FieldState, FieldActions } from './useFieldState';
 import { noop } from '../../utils';
 
 interface FieldData extends FieldState {
-  baseId?: string;
-  field: { id?: string };
+  fieldControl: { id?: string };
   label: { id?: string };
 }
 
 export const FieldContext = createContext<[FieldData, FieldActions]>([
-  { validationMessages: [], field: {}, label: {} },
+  { validationMessages: [], fieldControl: {}, label: {} },
   {
     registerValidationMessage: noop,
     removeValidationMessage: noop,

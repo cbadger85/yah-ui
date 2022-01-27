@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react';
 import React from 'react';
 import { FieldButton, Input, Select } from '../FieldControl';
+import { fieldControlFactory } from './FieldControl';
 
 describe.each([
   ['<Input />', Input, 'input'],
@@ -81,6 +82,21 @@ describe.each([
     expect(document.querySelector(element)).toHaveAttribute(
       'aria-describedby',
       `${descriptionId1} ${descriptionId2}`,
+    );
+  });
+});
+
+describe('fieldControlFactory', () => {
+  it('should be produce an input if no parameters are passed into the factory', () => {
+    const Component = fieldControlFactory();
+
+    const testid = 'testid';
+
+    render(<Component data-testid={testid} />);
+
+    expect(document.querySelector('input')).toHaveAttribute(
+      'data-testid',
+      testid,
     );
   });
 });

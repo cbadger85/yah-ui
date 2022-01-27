@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 
 function generateIds(): Record<string, number> {
-  return { uid: 1 };
+  return { uid: 0 };
 }
 
 let source = generateIds();
@@ -13,17 +13,8 @@ export function generateUniqueId(prefix = 'uid') {
   return `${prefix}-${nextVal}`;
 }
 
-export function useGenerateUniqueId(prefix = 'uid') {
+export function useGenerateUniqueId(prefix?: string) {
   return useRef(generateUniqueId(prefix)).current;
-}
-
-export function useGenerateUniqueIdOrDefault(
-  defaultId?: string,
-  options?: { generatedIdPrefix?: string },
-) {
-  const generatedId = useGenerateUniqueId(options?.generatedIdPrefix);
-
-  return defaultId ?? generatedId;
 }
 
 // For SSR support, this should be called before any renderToString/renderToStream call is made

@@ -48,4 +48,14 @@ describe('<Validation Message />', () => {
 
     expect(getByTestId(testId)).toBeInstanceOf(HTMLDivElement);
   });
+
+  it('should have the id attribute of the id prop if provided', () => {
+    const messageId = 'messageid';
+    const testId = 'testid';
+    const { getByTestId } = render(
+      <ValidationMessage id={messageId} data-testid={testId} />,
+    );
+
+    expect(getByTestId(testId).id).toBe(messageId);
+  });
 });

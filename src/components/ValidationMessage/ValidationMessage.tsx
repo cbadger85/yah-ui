@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import { useGenerateUniqueId } from '../../hooks';
 import { PolymorphicProps } from '../../types';
+import { noop } from '../../utils';
 import { FieldContext } from '../Field';
 
 export interface ValidationMessageOwnProps<E extends ElementType = 'span'> {
@@ -22,19 +23,21 @@ export const ValidationMessage = forwardRef(function ValidationMessage<
   { as, ...props }: ValidationMessageProps<E>,
   ref: ComponentPropsWithRef<E>['ref'],
 ) {
-  const [state, { registerValidationMessage, removeValidationMessage }] =
+  const [_, { registerValidationMessage, removeValidationMessage }] =
     useContext(FieldContext);
 
-  const generatedId = useGenerateUniqueId('validation').concat(
-    state.baseId || '',
-  );
+  const generatedId = useGenerateUniqueId('validation-message');
   const id = props?.id || generatedId;
 
   useEffect(() => {
-    registerValidationMessage({ id });
+    if (id === generatedId) {
+      registerValidationMessage({ id });
 
-    return () => removeValidationMessage(id);
-  }, [id, registerValidationMessage, removeValidationMessage]);
+      return () => removeValidationMessage(id);
+    } else {
+      return noop;
+    }
+  }, [generatedId, id, registerValidationMessage, removeValidationMessage]);
 
   const Component = as || 'span';
 

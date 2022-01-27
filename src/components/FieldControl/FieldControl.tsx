@@ -18,7 +18,7 @@ export type FieldControlProps<E extends ElementType> = PolymorphicProps<
   FieldControlOwnProps
 >;
 
-function fieldControlFactory<E extends ElementType>(as?: E) {
+export function fieldControlFactory<E extends ElementType>(as?: E) {
   return forwardRef<
     E extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[E] : never,
     FieldControlProps<E>
@@ -29,7 +29,7 @@ function fieldControlFactory<E extends ElementType>(as?: E) {
 
     const componentProps = {
       ...props,
-      id: props.id ?? state.field.id,
+      id: props.id ?? state.fieldControl.id,
       ['aria-describedby']: mergeAttributes(
         describedBy,
         props['aria-describedby'],

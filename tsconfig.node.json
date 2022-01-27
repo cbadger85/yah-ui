@@ -7,5 +7,5 @@
     "resolveJsonModule": true,
     "downlevelIteration": true
   },
-  "include": ["rollup.config.ts"]
+  "include": ["rollup.config.ts", "package.json"]
 }

@@ -35,12 +35,10 @@ export function fieldStateReducer(
 ): FieldState {
   switch (action.type) {
     case 'registerValidationMessage':
-      return action.payload.id
-        ? {
-            ...state,
-            validationMessages: [...state.validationMessages, action.payload],
-          }
-        : state;
+      return {
+        ...state,
+        validationMessages: [...state.validationMessages, action.payload],
+      };
 
     case 'removeValidationMessage':
       return {

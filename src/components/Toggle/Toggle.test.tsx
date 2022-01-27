@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import React from 'react';
 import { Toggle } from './Toggle';
 
@@ -39,4 +39,40 @@ describe('<Toggle />', () => {
       String(false),
     );
   });
+
+  it('should call onClick when the button is clicked', () => {
+    const testid = 'testid';
+    const onClick = jest.fn();
+
+    const { getByTestId } = render(
+      <Toggle data-testid={testid} onClick={onClick} />,
+    );
+
+    fireEvent.click(getByTestId(testid));
+
+    expect(onClick).toBeCalled();
+  });
+
+  it.each([
+    [false, true],
+    [false, true],
+  ])(
+    'should call onToggle with %s if checked is %s',
+    (expectedValue, curentValue) => {
+      const testid = 'testid';
+      const onToggle = jest.fn();
+
+      const { getByTestId } = render(
+        <Toggle
+          data-testid={testid}
+          onToggle={onToggle}
+          checked={curentValue}
+        />,
+      );
+
+      fireEvent.click(getByTestId(testid));
+
+      expect(onToggle).toBeCalledWith(expectedValue);
+    },
+  );
 });

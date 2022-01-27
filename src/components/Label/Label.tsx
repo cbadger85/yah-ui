@@ -12,7 +12,7 @@ export const Label = forwardRef<HTMLLabelElement, LabelProps>(function Label(
   const labelProps: ComponentPropsWithRef<'label'> = {
     ...props,
     id: props.id ?? state.label.id,
-    htmlFor: props.htmlFor ?? state.field.id,
+    htmlFor: props.htmlFor ?? state.fieldControl.id,
   };
 
   /**
