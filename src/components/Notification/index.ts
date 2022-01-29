@@ -1,3 +1,3 @@
 export * from './NotificationManager';
-export * from './createNotifier';
+export * from './useCreateNotifier';
 export * from './Notification';

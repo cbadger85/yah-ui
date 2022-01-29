@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 import { ActiveNotificationData } from '.';
-import { NotificationData } from './createNotifier';
+import { NotificationData } from './useCreateNotifier';
 
 interface NotificationContextValue {
   static: boolean;

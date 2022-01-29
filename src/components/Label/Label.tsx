@@ -4,8 +4,8 @@ import { FieldContext } from '../Field';
 export type LabelProps = ComponentPropsWithRef<'label'>;
 
 export const Label = forwardRef<HTMLLabelElement, LabelProps>(function Label(
-  props: LabelProps,
-  ref: ComponentPropsWithRef<'label'>['ref'],
+  props,
+  ref,
 ) {
   const [state] = useContext(FieldContext);
 

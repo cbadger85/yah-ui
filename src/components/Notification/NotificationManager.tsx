@@ -10,25 +10,29 @@ import {
   NotificationData,
 } from './useCreateNotifier';
 import { NotificationContext } from './NotificationContext';
+import { NotificationStatus } from '.';
 
-export interface NotificationManagerProps<T extends string>
-  extends ComponentPropsWithoutRef<'div'> {
-  controller: NotificationController<T>;
+export interface NotificationManagerProps<
+  Metadata extends Record<string, unknown>,
+  NotificationType extends string,
+> extends ComponentPropsWithoutRef<'div'> {
+  controller: NotificationController<Metadata, NotificationType>;
   static?: boolean;
   children: (
-    props: NotificationData<T> & { status: 'active' | 'inactive' },
+    props: NotificationData<NotificationType> & { status: NotificationStatus },
   ) => ReactNode;
 }
 
 // TODO forward the ref and make component polymorphic
 export function NotificationManager<
-  T extends string = DefaultNotificationType,
+  Metadata extends Record<string, unknown>,
+  NotificationType extends string = DefaultNotificationType,
 >({
   controller,
   static: isStatic,
   children,
   ...props
-}: NotificationManagerProps<T>) {
+}: NotificationManagerProps<Metadata, NotificationType>) {
   const [activeNotifications, setActiveNotifications] = useState(
     controller.activeNotificationQueue.value,
   );
@@ -51,8 +55,10 @@ export function NotificationManager<
           key={notification.id}
           value={{
             remove: controller.remove,
-            update:
-              controller.update as NotificationController<string>['update'],
+            update: controller.update as NotificationController<
+              Record<string, unknown>,
+              string
+            >['update'],
             static: Boolean(isStatic),
             notification,
             status: notification.status,

@@ -24,14 +24,16 @@ export type ActiveNotificationData<T extends string> = NotificationData<T> & {
 };
 
 export interface NotificationController<
-  T extends string = DefaultNotificationType,
-  N extends NotificationData<T> = NotificationData<T>,
+  Metadata extends Record<string, unknown> = Record<string, unknown>,
+  NotificationType extends string = DefaultNotificationType,
+  N extends NotificationData<NotificationType> = NotificationData<NotificationType> &
+    Metadata,
   A extends N & { status: NotificationStatus } = N & {
     status: NotificationStatus;
   },
 > {
   readonly activeNotificationQueue: Observable<A[]>;
-  readonly config: Required<NotifierConfig<T>>;
+  readonly config: Required<NotifierConfig<NotificationType>>;
   add: (data: Omit<N, 'id'>) => void;
   update: (data: Partial<N> & { id: string }) => void;
   remove: (id: string) => void;
@@ -51,21 +53,25 @@ export type Notify<O extends NotifyOptions = NotifyOptions> = (
 export const DEFAULT_NOTIFICATION_DELAY = 6000;
 
 class Controller<
-  T extends string,
-  N extends NotificationData<T> = NotificationData<T>,
+  Metadata extends Record<string, unknown> = Record<string, unknown>,
+  NotificationType extends string = DefaultNotificationType,
+  N extends NotificationData<NotificationType> = NotificationData<NotificationType> &
+    Metadata,
   A extends N & { status: NotificationStatus } = N & {
     status: NotificationStatus;
   },
-> implements NotificationController<T, N, A>
+> implements NotificationController<Metadata, NotificationType, N, A>
 {
   private pendingNotificationQueue: N[] = [];
   readonly activeNotificationQueue = new Observable<A[]>([]);
 
-  readonly config: Required<NotifierConfig<T>>;
+  readonly config: Required<NotifierConfig<NotificationType>>;
 
-  constructor(config?: NotifierConfig<T>) {
+  constructor(config?: NotifierConfig<NotificationType>) {
     this.config = {
-      types: config?.types || (['info', 'success', 'warn', 'danger'] as T[]),
+      types:
+        config?.types ||
+        (['info', 'success', 'warn', 'danger'] as NotificationType[]),
       limit: config?.limit ?? 2,
       delay: config?.delay ?? DEFAULT_NOTIFICATION_DELAY,
     };
@@ -159,15 +165,16 @@ class Controller<
 }
 
 function buildNotifier<
-  T extends string,
-  N extends NotificationData<T> = NotificationData<T>,
+  Metadata extends Record<string, unknown> = Record<string, unknown>,
+  NotificationType extends string = DefaultNotificationType,
+  N extends NotificationData<NotificationType> = NotificationData<NotificationType> &
+    Metadata,
   A extends N & { status: NotificationStatus } = N & {
     status: NotificationStatus;
   },
->(controller: NotificationController<T, N, A>) {
-  return controller.config.types.reduce<
-    Record<T, Notify<Omit<N, keyof NotificationData<T>> & { delay?: number }>>
-  >(
+  O extends NotifyOptions = Metadata & NotifyOptions,
+>(controller: NotificationController<Metadata, NotificationType, N, A>) {
+  return controller.config.types.reduce<Record<NotificationType, Notify<O>>>(
     (acc, type) => ({
       ...acc,
       [type]: (message: ReactNode, options?: NotifyOptions) => {
@@ -185,50 +192,56 @@ function buildNotifier<
 }
 
 export function createNotifier<
-  T extends string = DefaultNotificationType,
-  N extends NotificationData<T> = NotificationData<T>,
+  Metadata extends Record<string, unknown> = Record<string, unknown>,
+  NotificationType extends string = DefaultNotificationType,
+  N extends NotificationData<NotificationType> = NotificationData<NotificationType> &
+    Metadata,
   A extends N & { status: NotificationStatus } = N & {
     status: NotificationStatus;
   },
+  O extends NotifyOptions = Metadata & NotifyOptions,
 >(
-  config?: NotifierConfig<T>,
+  config?: NotifierConfig<NotificationType>,
 ): {
-  notifier: Record<
-    T,
-    Notify<Omit<N, keyof NotificationData<T>> & { delay?: number }>
-  >;
-  controller: NotificationController<T, N, A>;
+  notifier: Record<NotificationType, Notify<O>>;
+  controller: NotificationController<Metadata, NotificationType, N, A>;
 } {
-  const controller = new Controller<T, N, A>(config);
+  const controller = new Controller<Metadata, NotificationType, N, A>(config);
 
-  const notifier = buildNotifier(controller);
+  const notifier = buildNotifier<Metadata, NotificationType, N, A, O>(
+    controller,
+  );
 
   return { notifier, controller };
 }
 
 export function useCreateNotifier<
-  T extends string = DefaultNotificationType,
-  N extends NotificationData<T> = NotificationData<T>,
+  Metadata extends Record<string, unknown> = Record<string, unknown>,
+  NotificationType extends string = DefaultNotificationType,
+  N extends NotificationData<NotificationType> = NotificationData<NotificationType> &
+    Metadata,
   A extends N & { status: NotificationStatus } = N & {
     status: NotificationStatus;
   },
+  O extends NotifyOptions = Metadata & NotifyOptions,
 >(
-  config?: NotifierConfig<T>,
+  config?: NotifierConfig<NotificationType>,
 ): {
-  notifier: Record<T, Notify<Omit<N, keyof NotificationData<T>>>>;
-  controller: NotificationController<T, N, A>;
+  notifier: Record<NotificationType, Notify<O>>;
+  controller: NotificationController<Metadata, NotificationType, N, A>;
 } {
-  return useMemo(() => createNotifier(config), [config]);
+  return useMemo(
+    () => createNotifier<Metadata, NotificationType, N, A, O>(config),
+    [config],
+  );
 }
 
-const { notifier, controller } = createNotifier<
-  DefaultNotificationType,
-  NotificationData<DefaultNotificationType>
->();
+const { notifier, controller } = createNotifier();
 
-notifier.success('success');
+notifier.success('success', { delay: 200, test: '' });
 
 controller.add({
   type: 'success',
   message: 'success!',
+  test: '',
 });
