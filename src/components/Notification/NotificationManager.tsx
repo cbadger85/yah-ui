@@ -9,7 +9,7 @@ import {
   NotificationController,
   ActiveNotificationData,
   NotificationMetadata,
-} from './useCreateNotifier';
+} from './NotificationController';
 
 export interface NotificationManagerProps<
   T extends string,
