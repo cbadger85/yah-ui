@@ -29,15 +29,20 @@ export const ValidationMessage = forwardRef(function ValidationMessage<
   const generatedId = useGenerateUniqueId('validation-message');
   const id = props?.id || generatedId;
 
-  useEffect(() => {
-    if (id === generatedId) {
-      registerValidationMessage({ id });
+  useEffect(
+    function register() {
+      if (id === generatedId) {
+        registerValidationMessage({ id });
 
-      return () => removeValidationMessage(id);
-    } else {
-      return noop;
-    }
-  }, [generatedId, id, registerValidationMessage, removeValidationMessage]);
+        return function cleanup() {
+          return removeValidationMessage(id);
+        };
+      } else {
+        return noop;
+      }
+    },
+    [generatedId, id, registerValidationMessage, removeValidationMessage],
+  );
 
   const Component = as || 'span';
 
