@@ -6,9 +6,11 @@ interface NotificationContextValue {
   static: boolean;
   remove: (id: string) => void;
   update: (
-    data: Partial<ActiveNotificationData<string>> & { id: string },
+    data: Partial<ActiveNotificationData<string, Record<never, never>>> & {
+      id: string;
+    },
   ) => void;
-  notification: NotificationData<string>;
+  notification: NotificationData<string, Record<never, never>>;
   status: 'active' | 'inactive';
 }
 

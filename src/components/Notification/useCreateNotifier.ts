@@ -12,72 +12,72 @@ export interface NotifierConfig<T extends string> {
 
 export type NotificationStatus = 'inactive' | 'active';
 
-export type NotificationData<T extends string> = {
+export type NotificationData<
+  T extends string,
+  M extends Record<never, never>,
+> = {
   id: string;
   message: ReactNode;
   type: T;
   delay?: number;
-};
+} & M;
 
-export type ActiveNotificationData<T extends string> = NotificationData<T> & {
+export type ActiveNotificationData<
+  T extends string,
+  M extends Record<never, never>,
+> = NotificationData<T, M> & {
   status: NotificationStatus;
 };
 
 export interface NotificationController<
-  Metadata extends Record<never, never> = Record<never, never>,
-  NotificationType extends string = DefaultNotificationType,
-  N extends NotificationData<NotificationType> = NotificationData<NotificationType> &
-    Metadata,
-  A extends N & { status: NotificationStatus } = N & {
-    status: NotificationStatus;
-  },
+  T extends string = DefaultNotificationType,
+  M extends Record<never, never> = Record<never, never>,
 > {
-  readonly activeNotificationQueue: Observable<A[]>;
-  readonly config: Required<NotifierConfig<NotificationType>>;
-  add: (data: Omit<N, 'id'>) => void;
-  update: (data: Partial<N> & { id: string }) => void;
+  readonly activeNotificationQueue: Observable<ActiveNotificationData<T, M>[]>;
+  readonly config: Required<NotifierConfig<T>>;
+  add: (data: Omit<NotificationData<T, M>, 'id'>) => void;
+  update: (
+    data: Partial<NotificationData<T, M>> & {
+      id: string;
+    },
+  ) => void;
   remove: (id: string) => void;
   cancel: (id: string) => void;
   clear: () => void;
 }
 
-export interface NotifyOptions {
+export type NotifyOptions<M extends Record<never, never>> = {
   delay?: number;
-}
+} & M;
 
-export type Notify<O extends NotifyOptions> = (
+export type Notify<M extends Record<never, never>> = (
   message: ReactNode,
-  options?: O,
+  options?: NotifyOptions<M>,
 ) => void;
 
 export const DEFAULT_NOTIFICATION_DELAY = 6000;
 
 class Controller<
-  Metadata extends Record<never, never> = Record<never, never>,
-  NotificationType extends string = DefaultNotificationType,
-  N extends NotificationData<NotificationType> = NotificationData<NotificationType> &
-    Metadata,
-  A extends N & { status: NotificationStatus } = N & {
-    status: NotificationStatus;
-  },
-> implements NotificationController<Metadata, NotificationType, N, A>
+  T extends string = DefaultNotificationType,
+  M extends Record<never, never> = Record<never, never>,
+> implements NotificationController<T, M>
 {
-  private pendingNotificationQueue: N[] = [];
-  readonly activeNotificationQueue = new Observable<A[]>([]);
+  private pendingNotificationQueue: NotificationData<T, M>[] = [];
+  readonly activeNotificationQueue = new Observable<
+    ActiveNotificationData<T, M>[]
+  >([]);
 
-  readonly config: Required<NotifierConfig<NotificationType>>;
+  readonly config: Required<NotifierConfig<T>>;
 
-  constructor(config?: NotifierConfig<NotificationType>) {
+  constructor(config?: NotifierConfig<T>) {
     this.config = {
-      types:
-        config?.types ||
-        (['info', 'success', 'warn', 'danger'] as NotificationType[]),
+      types: config?.types || (['info', 'success', 'warn', 'danger'] as T[]),
       limit: config?.limit ?? 2,
       delay: config?.delay ?? DEFAULT_NOTIFICATION_DELAY,
     };
   }
 
-  add(data: Omit<N, 'id'>) {
+  add(data: Omit<NotificationData<T, M>, 'id'>) {
     const id = generateUniqueId('toast');
 
     const notification = {
@@ -86,12 +86,12 @@ class Controller<
       message: data.message,
       type: data.type,
       delay: data.delay ?? this.config.delay,
-    } as N;
+    } as NotificationData<T, M>;
 
     if (this.activeNotificationQueue.value.length < this.config.limit) {
       this.activeNotificationQueue.setValue([
         ...this.activeNotificationQueue.value,
-        { ...notification, status: 'active' } as A,
+        { ...notification, status: 'active' },
       ]);
     } else {
       this.pendingNotificationQueue = [
@@ -101,7 +101,9 @@ class Controller<
     }
   }
 
-  update(updatedNotification: Partial<N> & { id: string }) {
+  update(
+    updatedNotification: Partial<NotificationData<T, M>> & { id: string },
+  ) {
     if (this.isActiveNotification(updatedNotification.id)) {
       this.activeNotificationQueue.setValue(
         this.activeNotificationQueue.value.map((notification) =>
@@ -130,7 +132,10 @@ class Controller<
 
       this.activeNotificationQueue.setValue([
         ...updatedActiveNotifications,
-        { ...nextNotification, status: 'active' } as A,
+        { ...nextNotification, status: 'active' } as ActiveNotificationData<
+          T,
+          M
+        >,
       ]);
       this.pendingNotificationQueue = updatedNotificationQueue;
     } else {
@@ -155,8 +160,9 @@ class Controller<
     this.pendingNotificationQueue = [];
   }
 
-  private filterNotification = (id: string) => (notification: N) =>
-    notification.id !== id;
+  private filterNotification =
+    (id: string) => (notification: NotificationData<T, M>) =>
+      notification.id !== id;
 
   private isActiveNotification = (id: string) =>
     this.activeNotificationQueue.value.some(
@@ -165,24 +171,18 @@ class Controller<
 }
 
 function buildNotifier<
-  Metadata extends Record<never, never> = Record<never, never>,
-  NotificationType extends string = DefaultNotificationType,
-  N extends NotificationData<NotificationType> = NotificationData<NotificationType> &
-    Metadata,
-  A extends N & { status: NotificationStatus } = N & {
-    status: NotificationStatus;
-  },
-  O extends NotifyOptions = Metadata & NotifyOptions,
->(controller: NotificationController<Metadata, NotificationType, N, A>) {
-  return controller.config.types.reduce<Record<NotificationType, Notify<O>>>(
+  T extends string = DefaultNotificationType,
+  M extends Record<never, never> = Record<never, never>,
+>(controller: NotificationController<T, M>) {
+  return controller.config.types.reduce<Record<T, Notify<M>>>(
     (acc, type) => ({
       ...acc,
-      [type]: (message: ReactNode, options?: NotifyOptions) => {
+      [type]: (message: ReactNode, options?: NotifyOptions<M>) => {
         const notification = {
           message,
           type,
           ...options,
-        } as N;
+        } as NotificationData<T, M>;
 
         controller.add(notification);
       },
@@ -192,55 +192,29 @@ function buildNotifier<
 }
 
 export function createNotifier<
-  Metadata extends Record<never, never> = Record<never, never>,
-  NotificationType extends string = DefaultNotificationType,
-  N extends NotificationData<NotificationType> = NotificationData<NotificationType> &
-    Metadata,
-  A extends N & { status: NotificationStatus } = N & {
-    status: NotificationStatus;
-  },
-  O extends NotifyOptions = Metadata & NotifyOptions,
+  T extends string = DefaultNotificationType,
+  M extends Record<never, never> = Record<never, never>,
 >(
-  config?: NotifierConfig<NotificationType>,
+  config?: NotifierConfig<T>,
 ): {
-  notifier: Record<NotificationType, Notify<O>>;
-  controller: NotificationController<Metadata, NotificationType, N, A>;
+  notifier: Record<T, Notify<M>>;
+  controller: NotificationController<T, M>;
 } {
-  const controller = new Controller<Metadata, NotificationType, N, A>(config);
+  const controller = new Controller<T, M>(config);
 
-  const notifier = buildNotifier<Metadata, NotificationType, N, A, O>(
-    controller,
-  );
+  const notifier = buildNotifier<T, M>(controller);
 
   return { notifier, controller };
 }
 
 export function useCreateNotifier<
-  Metadata extends Record<never, never> = Record<never, never>,
-  NotificationType extends string = DefaultNotificationType,
-  N extends NotificationData<NotificationType> = NotificationData<NotificationType> &
-    Metadata,
-  A extends N & { status: NotificationStatus } = N & {
-    status: NotificationStatus;
-  },
-  O extends NotifyOptions = Metadata & NotifyOptions,
+  T extends string = DefaultNotificationType,
+  M extends Record<never, never> = Record<never, never>,
 >(
-  config?: NotifierConfig<NotificationType>,
+  config?: NotifierConfig<T>,
 ): {
-  notifier: Record<NotificationType, Notify<O>>;
-  controller: NotificationController<Metadata, NotificationType, N, A>;
+  notifier: Record<T, Notify<M>>;
+  controller: NotificationController<T, M>;
 } {
-  return useMemo(
-    () => createNotifier<Metadata, NotificationType, N, A, O>(config),
-    [config],
-  );
+  return useMemo(() => createNotifier<T, M>(config), [config]);
 }
-
-const { notifier, controller } = createNotifier();
-
-notifier.success('success', { delay: 200 });
-
-controller.add({
-  type: 'success',
-  message: 'success!',
-});
