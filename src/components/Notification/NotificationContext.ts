@@ -3,7 +3,7 @@ import {
   NotificationData,
   ActiveNotificationData,
   NotificationMetadata,
-} from './NotificationController';
+} from './NotificationsManager';
 
 interface NotificationContextValue {
   static: boolean;

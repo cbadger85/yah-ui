@@ -4,7 +4,7 @@ import React, {
   useContext,
   useEffect,
 } from 'react';
-import { DEFAULT_NOTIFICATION_DELAY } from './NotificationController';
+import { DEFAULT_NOTIFICATION_DELAY } from './NotificationsManager';
 import { NotificationContext } from './NotificationContext';
 
 export type NotificationProps = ComponentPropsWithRef<'div'> & {

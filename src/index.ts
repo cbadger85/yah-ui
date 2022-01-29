@@ -18,23 +18,24 @@ export { Label } from './components/Label';
 export type { LabelProps } from './components/Label';
 
 export {
-  useCreateNotifier,
-  createNotifier,
-  NotificationManager,
-  NotificationController,
+  useNotifications,
+  createNotificationManager,
+  NotificationsContainer,
   Notification,
 } from './components/Notification';
 export type {
   DefaultNotificationType,
   NotificationData,
-  NotifierConfig,
+  NotificationsController,
+  NotificationManagerConfig,
+  NotificationManger,
   NotificationStatus,
   ActiveNotificationData,
   NotificationMetadata,
   NotifyOptions,
   Notify,
   NotificationProps,
-  NotificationManagerProps,
+  NotificationsContainerProps,
 } from './components/Notification';
 
 export { Toggle } from './components/Toggle';
@@ -50,4 +51,5 @@ export {
   useIsomorphicLayoutEffect,
 } from './hooks';
 
-export { mergeAttributes, Observable } from './utils';
+export { mergeAttributes } from './utils';
+export type { Observable } from './utils';

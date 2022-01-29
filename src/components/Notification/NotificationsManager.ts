@@ -1,10 +1,10 @@
 import { ReactNode } from 'react';
 import { generateUniqueId } from '../../hooks';
-import { Observable } from '../../utils';
+import { ObservableState, Observable, filterByField } from '../../utils';
 
 export type DefaultNotificationType = 'info' | 'success' | 'warn' | 'danger';
 
-export interface NotifierConfig<T extends string> {
+export interface NotificationManagerConfig<T extends string> {
   types: T[];
   limit?: number;
   delay?: number;
@@ -42,18 +42,42 @@ export type Notify<M extends NotificationMetadata> = (
 
 export const DEFAULT_NOTIFICATION_DELAY = 6000;
 
-export class NotificationController<
+export interface NotificationsController<
   T extends string = DefaultNotificationType,
   M extends NotificationMetadata = Record<never, never>,
 > {
+  readonly activeNotificationQueue: Observable<ActiveNotificationData<T, M>[]>;
+  readonly config: Required<NotificationManagerConfig<T>>;
+  add: (data: Omit<NotificationData<T, M>, 'id'>) => void;
+  update: (
+    data: Partial<ActiveNotificationData<T, M>> & { id: string },
+  ) => void;
+  remove: (id: string) => void;
+  cancel: (id: string) => void;
+  clear: (option?: { all: boolean }) => void;
+}
+
+export interface NotificationManger<
+  T extends string,
+  M extends NotificationMetadata = Record<never, never>,
+> {
+  notifier: Record<T, Notify<M>>;
+  controller: NotificationsController<T, M>;
+}
+
+class Controller<
+  T extends string = DefaultNotificationType,
+  M extends NotificationMetadata = Record<never, never>,
+> implements NotificationsController<T, M>
+{
   #pendingNotificationQueue: NotificationData<T, M>[] = [];
-  readonly activeNotificationQueue = new Observable<
+  readonly activeNotificationQueue = new ObservableState<
     ActiveNotificationData<T, M>[]
   >([]);
 
-  readonly config: Required<NotifierConfig<T>>;
+  readonly config: Required<NotificationManagerConfig<T>>;
 
-  constructor(config?: NotifierConfig<T>) {
+  constructor(config?: NotificationManagerConfig<T>) {
     this.config = {
       types: config?.types || (['info', 'success', 'warn', 'danger'] as T[]),
       limit: config?.limit ?? 2,
@@ -86,7 +110,7 @@ export class NotificationController<
   }
 
   update(
-    updatedNotification: Partial<NotificationData<T, M>> & { id: string },
+    updatedNotification: Partial<ActiveNotificationData<T, M>> & { id: string },
   ) {
     if (this.#isActiveNotification(updatedNotification.id)) {
       this.activeNotificationQueue.setValue(
@@ -97,20 +121,21 @@ export class NotificationController<
         ),
       );
     } else {
+      const { status, ...updatedPendingNotification } = updatedNotification;
       this.#pendingNotificationQueue = this.#pendingNotificationQueue.map(
         (notification) =>
-          notification.id === updatedNotification.id
-            ? { ...notification, ...updatedNotification }
+          notification.id === updatedPendingNotification.id
+            ? { ...notification, ...updatedPendingNotification }
             : notification,
       );
     }
   }
 
   remove(id: string) {
-    const updatedActiveNotifications =
-      this.activeNotificationQueue.value.filter(
-        this.#notificationPredicate(id),
-      );
+    const updatedActiveNotifications = this.#removeNotification(
+      this.activeNotificationQueue.value,
+      id,
+    );
 
     if (this.#pendingNotificationQueue.length) {
       const [nextNotification, ...updatedNotificationQueue] =
@@ -134,21 +159,25 @@ export class NotificationController<
       return this.remove(id);
     }
 
-    const filteredPendingNotifications = this.#pendingNotificationQueue.filter(
-      this.#notificationPredicate(id),
+    const filteredPendingNotifications = this.#removeNotification(
+      this.#pendingNotificationQueue,
+      id,
     );
 
     this.#pendingNotificationQueue = filteredPendingNotifications;
   }
 
-  clear() {
-    this.activeNotificationQueue.setValue([]);
+  clear(options?: { all: boolean }) {
+    if (options?.all) {
+      this.activeNotificationQueue.setValue([]);
+    }
     this.#pendingNotificationQueue = [];
   }
 
-  #notificationPredicate =
-    (id: string) => (notification: NotificationData<T, M>) =>
-      notification.id !== id;
+  #removeNotification = <N extends NotificationData<T, M>>(
+    notifications: N[],
+    notificationId: string,
+  ): N[] => filterByField(notifications, 'id', notificationId);
 
   #isActiveNotification = (id: string) =>
     this.activeNotificationQueue.value.some(
@@ -156,10 +185,13 @@ export class NotificationController<
     );
 }
 
-function buildNotifier<T extends string, M extends NotificationMetadata>(
-  controller: NotificationController<T, M>,
-) {
-  return controller.config.types.reduce<Record<T, Notify<M>>>(
+export function createNotificationManager<
+  T extends string,
+  M extends NotificationMetadata = Record<never, never>,
+>(config?: NotificationManagerConfig<T>): NotificationManger<T, M> {
+  const controller = new Controller<T, M>(config);
+
+  const notifier = controller.config.types.reduce<Record<T, Notify<M>>>(
     (acc, type) => ({
       ...acc,
       [type]: (message: ReactNode, options?: NotifyOptions<M>) => {
@@ -174,20 +206,6 @@ function buildNotifier<T extends string, M extends NotificationMetadata>(
     }),
     {} as never,
   );
-}
-
-export function createNotifier<
-  T extends string,
-  M extends NotificationMetadata = Record<never, never>,
->(
-  config?: NotifierConfig<T>,
-): {
-  notifier: Record<T, Notify<M>>;
-  controller: NotificationController<T, M>;
-} {
-  const controller = new NotificationController<T, M>(config);
-
-  const notifier = buildNotifier<T, M>(controller);
 
   return { notifier, controller };
 }

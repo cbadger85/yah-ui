@@ -1,4 +1,4 @@
-export * from './NotificationManager';
-export * from './NotificationController';
+export * from './NotificationsContainer';
+export * from './NotificationsManager';
 export * from './Notification';
-export * from './useCreateNotifier';
+export * from './useNotifications';

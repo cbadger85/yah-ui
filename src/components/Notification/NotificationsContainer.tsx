@@ -1,35 +1,28 @@
-import React, {
-  ComponentPropsWithoutRef,
-  ReactNode,
-  useEffect,
-  useState,
-} from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { NotificationContext } from './NotificationContext';
 import {
-  NotificationController,
+  NotificationsController,
   ActiveNotificationData,
   NotificationMetadata,
-} from './NotificationController';
+} from './NotificationsManager';
 
-export interface NotificationManagerProps<
+export interface NotificationsContainerProps<
   T extends string,
   M extends NotificationMetadata,
-> extends ComponentPropsWithoutRef<'div'> {
-  controller: NotificationController<T, M>;
+> {
+  controller: NotificationsController<T, M>;
   static?: boolean;
   children: (props: ActiveNotificationData<T, M>) => ReactNode;
 }
 
-// TODO forward the ref and make component polymorphic
-export function NotificationManager<
+export function NotificationsContainer<
   T extends string,
   M extends NotificationMetadata = Record<never, never>,
 >({
   controller,
   static: isStatic,
   children,
-  ...props
-}: NotificationManagerProps<T, M>) {
+}: NotificationsContainerProps<T, M>) {
   const [activeNotifications, setActiveNotifications] = useState(
     controller.activeNotificationQueue.value,
   );
@@ -46,13 +39,13 @@ export function NotificationManager<
   );
 
   return (
-    <div {...props}>
+    <>
       {activeNotifications.map((notification) => (
         <NotificationContext.Provider
           key={notification.id}
           value={{
             remove: controller.remove,
-            update: controller.update as NotificationController<
+            update: controller.update as NotificationsController<
               string,
               Record<never, never>
             >['update'],
@@ -64,6 +57,6 @@ export function NotificationManager<
           {children(notification)}
         </NotificationContext.Provider>
       ))}
-    </div>
+    </>
   );
 }
