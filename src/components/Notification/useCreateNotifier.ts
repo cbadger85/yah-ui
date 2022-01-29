@@ -24,7 +24,7 @@ export type ActiveNotificationData<T extends string> = NotificationData<T> & {
 };
 
 export interface NotificationController<
-  Metadata extends Record<string, unknown> = Record<string, unknown>,
+  Metadata extends Record<never, never> = Record<never, never>,
   NotificationType extends string = DefaultNotificationType,
   N extends NotificationData<NotificationType> = NotificationData<NotificationType> &
     Metadata,
@@ -45,7 +45,7 @@ export interface NotifyOptions {
   delay?: number;
 }
 
-export type Notify<O extends NotifyOptions = NotifyOptions> = (
+export type Notify<O extends NotifyOptions> = (
   message: ReactNode,
   options?: O,
 ) => void;
@@ -53,7 +53,7 @@ export type Notify<O extends NotifyOptions = NotifyOptions> = (
 export const DEFAULT_NOTIFICATION_DELAY = 6000;
 
 class Controller<
-  Metadata extends Record<string, unknown> = Record<string, unknown>,
+  Metadata extends Record<never, never> = Record<never, never>,
   NotificationType extends string = DefaultNotificationType,
   N extends NotificationData<NotificationType> = NotificationData<NotificationType> &
     Metadata,
@@ -165,7 +165,7 @@ class Controller<
 }
 
 function buildNotifier<
-  Metadata extends Record<string, unknown> = Record<string, unknown>,
+  Metadata extends Record<never, never> = Record<never, never>,
   NotificationType extends string = DefaultNotificationType,
   N extends NotificationData<NotificationType> = NotificationData<NotificationType> &
     Metadata,
@@ -192,7 +192,7 @@ function buildNotifier<
 }
 
 export function createNotifier<
-  Metadata extends Record<string, unknown> = Record<string, unknown>,
+  Metadata extends Record<never, never> = Record<never, never>,
   NotificationType extends string = DefaultNotificationType,
   N extends NotificationData<NotificationType> = NotificationData<NotificationType> &
     Metadata,
@@ -216,7 +216,7 @@ export function createNotifier<
 }
 
 export function useCreateNotifier<
-  Metadata extends Record<string, unknown> = Record<string, unknown>,
+  Metadata extends Record<never, never> = Record<never, never>,
   NotificationType extends string = DefaultNotificationType,
   N extends NotificationData<NotificationType> = NotificationData<NotificationType> &
     Metadata,
@@ -238,10 +238,9 @@ export function useCreateNotifier<
 
 const { notifier, controller } = createNotifier();
 
-notifier.success('success', { delay: 200, test: '' });
+notifier.success('success', { delay: 200 });
 
 controller.add({
   type: 'success',
   message: 'success!',
-  test: '',
 });
