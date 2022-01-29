@@ -4,29 +4,26 @@ import React, {
   useEffect,
   useState,
 } from 'react';
-import {
-  DefaultNotificationType,
-  NotificationController,
-  NotificationData,
-} from './useCreateNotifier';
 import { NotificationContext } from './NotificationContext';
-import { NotificationStatus } from '.';
+import {
+  NotificationController,
+  ActiveNotificationData,
+  NotificationMetadata,
+} from './useCreateNotifier';
 
 export interface NotificationManagerProps<
   T extends string,
-  M extends Record<string, unknown>,
+  M extends NotificationMetadata,
 > extends ComponentPropsWithoutRef<'div'> {
   controller: NotificationController<T, M>;
   static?: boolean;
-  children: (
-    props: NotificationData<T, M> & { status: NotificationStatus },
-  ) => ReactNode;
+  children: (props: ActiveNotificationData<T, M>) => ReactNode;
 }
 
 // TODO forward the ref and make component polymorphic
 export function NotificationManager<
-  T extends string = DefaultNotificationType,
-  M extends Record<never, never> = Record<never, never>,
+  T extends string,
+  M extends NotificationMetadata = Record<never, never>,
 >({
   controller,
   static: isStatic,

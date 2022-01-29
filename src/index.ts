@@ -21,6 +21,7 @@ export {
   useCreateNotifier,
   createNotifier,
   NotificationManager,
+  NotificationController,
   Notification,
 } from './components/Notification';
 export type {
@@ -29,9 +30,9 @@ export type {
   NotifierConfig,
   NotificationStatus,
   ActiveNotificationData,
+  NotificationMetadata,
   NotifyOptions,
   Notify,
-  NotificationController,
   NotificationProps,
   NotificationManagerProps,
 } from './components/Notification';

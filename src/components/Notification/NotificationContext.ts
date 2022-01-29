@@ -1,16 +1,19 @@
 import { createContext } from 'react';
-import { ActiveNotificationData } from '.';
-import { NotificationData } from './useCreateNotifier';
+import {
+  NotificationData,
+  ActiveNotificationData,
+  NotificationMetadata,
+} from './useCreateNotifier';
 
 interface NotificationContextValue {
   static: boolean;
   remove: (id: string) => void;
   update: (
-    data: Partial<ActiveNotificationData<string, Record<never, never>>> & {
+    data: Partial<ActiveNotificationData<string, NotificationMetadata>> & {
       id: string;
     },
   ) => void;
-  notification: NotificationData<string, Record<never, never>>;
+  notification: NotificationData<string, NotificationMetadata>;
   status: 'active' | 'inactive';
 }
 

@@ -2,27 +2,28 @@ type Listener<T> = (val: T) => void;
 type Unsubscriber = () => void;
 
 export class Observable<T> {
-  private _listeners: Listener<T>[] = [];
+  #listeners: Listener<T>[] = [];
+  #value: T;
 
-  constructor(private _val: T) {
-    this._val = _val;
+  constructor(value: T) {
+    this.#value = value;
   }
 
   get value(): T {
-    return this._val;
+    return this.#value;
   }
 
-  setValue(val: T) {
-    if (this._val !== val) {
-      this._val = val;
-      this._listeners.forEach((l) => l(val));
+  setValue(value: T) {
+    if (this.#value !== value) {
+      this.#value = value;
+      this.#listeners.forEach((l) => l(value));
     }
   }
 
   subscribe(listener: Listener<T>): Unsubscriber {
-    this._listeners.push(listener);
+    this.#listeners.push(listener);
     return () => {
-      this._listeners = this._listeners.filter((l) => l !== listener);
+      this.#listeners = this.#listeners.filter((l) => l !== listener);
     };
   }
 }
