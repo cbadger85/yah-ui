@@ -5,8 +5,17 @@ import { ObservableState, Observable, filterByField } from '../../utils';
 export type DefaultNotificationType = 'info' | 'success' | 'warn' | 'danger';
 
 export interface NotificationManagerConfig<T extends string> {
+  /**
+   * @default ['info', 'success', 'warn', 'danger']
+   */
   types: T[];
+  /**
+   * @default 2
+   */
   limit?: number;
+  /**
+   * @default 6000
+   */
   delay?: number;
 }
 
@@ -185,6 +194,14 @@ class Controller<
     );
 }
 
+export function createNotificationManager<
+  T extends DefaultNotificationType = DefaultNotificationType,
+  M extends NotificationMetadata = Record<never, never>,
+>(config?: NotificationManagerConfig<T>): NotificationManger<T, M>;
+export function createNotificationManager<
+  T extends string,
+  M extends NotificationMetadata = Record<never, never>,
+>(config: NotificationManagerConfig<T>): NotificationManger<T, M>;
 export function createNotificationManager<
   T extends string,
   M extends NotificationMetadata = Record<never, never>,
