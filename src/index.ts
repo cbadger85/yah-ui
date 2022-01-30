@@ -20,7 +20,7 @@ export type { LabelProps } from './components/Label';
 export {
   useNotifications,
   createNotificationManager,
-  NotificationsContainer,
+  NotificationsProvider,
   Notification,
 } from './components/Notification';
 export type {
@@ -35,7 +35,7 @@ export type {
   NotifyOptions,
   Notify,
   NotificationProps,
-  NotificationsContainerProps,
+  NotificationsProviderProps,
 } from './components/Notification';
 
 export { Toggle } from './components/Toggle';
@@ -53,3 +53,12 @@ export {
 
 export { mergeAttributes } from './utils';
 export type { ReactiveStore } from './utils';
+
+export type {
+  ExtendableProps,
+  InheritableElementProps,
+  PolymorphicComponentProps,
+  PolymorphicComponentPropsWithRef,
+  PolymorphicRef,
+  PropsOf,
+} from './types';

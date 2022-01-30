@@ -6,7 +6,7 @@ import {
   AdditionalNotificationProps,
 } from './NotificationsManager';
 
-export interface NotificationsContainerProps<
+export interface NotificationsProviderProps<
   T extends string,
   P extends AdditionalNotificationProps,
 > {
@@ -15,14 +15,14 @@ export interface NotificationsContainerProps<
   children: (props: ActiveNotificationData<T, Partial<P>>) => ReactNode;
 }
 
-export function NotificationsContainer<
+export function NotificationsProvider<
   T extends string,
   P extends AdditionalNotificationProps = Record<never, never>,
 >({
   controller,
   static: isStatic,
   children,
-}: NotificationsContainerProps<T, P>) {
+}: NotificationsProviderProps<T, P>) {
   const [activeNotifications, setActiveNotifications] = useState(
     controller.activeNotificationQueue.value,
   );
