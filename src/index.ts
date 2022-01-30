@@ -1,9 +1,5 @@
 export { Field } from './components/Field';
-export type {
-  FieldProps,
-  ValidationMessageData,
-  FieldState,
-} from './components/Field';
+export type { FieldProps } from './components/Field';
 
 export { Input, Select, FieldButton } from './components/FieldControl';
 export type {
