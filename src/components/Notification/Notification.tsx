@@ -35,8 +35,8 @@ export const Notification: NotificationComponent = forwardRef(
     useEffect(
       function deactivateAfterDelay() {
         const timer = setTimeout(() => {
-          if (notification?.id) {
-            update?.({ id: notification.id, status: 'inactive' });
+          if (notification?.id && update) {
+            update({ id: notification.id, status: 'inactive' });
           }
         }, notification?.delay || DEFAULT_NOTIFICATION_DELAY);
 
