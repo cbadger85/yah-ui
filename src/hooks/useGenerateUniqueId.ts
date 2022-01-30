@@ -6,18 +6,18 @@ function generateIds(): Record<string, number> {
 
 let source = generateIds();
 
-export function generateUniqueId(prefix = 'uid') {
+export function generateUniqueId(prefix = 'uid'): string {
   const nextVal = (source[prefix] || 0) + 1;
   source[prefix] = nextVal;
 
   return `${prefix}-${nextVal}`;
 }
 
-export function useGenerateUniqueId(prefix?: string) {
+export function useGenerateUniqueId(prefix?: string): string {
   return useRef(generateUniqueId(prefix)).current;
 }
 
 // For SSR support, this should be called before any renderToString/renderToStream call is made
-export function resetIds() {
+export function resetIds(): void {
   source = generateIds();
 }

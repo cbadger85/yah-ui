@@ -1,13 +1,13 @@
 import { isTruthy, isString } from './typeGuards';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export function noop() {}
+export function noop(): void {}
 
 export function identity<T>(value: T): T {
   return value;
 }
 
-export function mergeAttributes(...ids: unknown[]) {
+export function mergeAttributes(...ids: unknown[]): string | undefined {
   const validIds = ids
     .filter(isString)
     .map((id) => id.trim())

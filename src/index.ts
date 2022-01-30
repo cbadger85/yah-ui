@@ -3,22 +3,13 @@ export type { FieldProps } from './components/Field';
 
 export { Input, Select, FieldButton } from './components/FieldControl';
 export type {
-  FieldControlOwnProps,
-  FieldControlProps,
   InputProps,
   FieldButtonProps,
   SelectProps,
-  FieldButtonComponent,
-  InputComponent,
-  SelectComponent,
 } from './components/FieldControl';
 
 export { Label } from './components/Label';
-export type {
-  LabelProps,
-  LabelOwnProps,
-  LabelComponent,
-} from './components/Label';
+export type { LabelProps } from './components/Label';
 
 export {
   useNotifications,
@@ -29,8 +20,6 @@ export {
 } from './components/Notification';
 export type {
   CloseNotificationButtonProps,
-  CloseNotificationButtonOwnProps,
-  CloseNotificationButtonComponent,
   DefaultNotificationType,
   NotificationData,
   NotificationManager,
@@ -39,24 +28,14 @@ export type {
   ActiveNotificationData,
   AdditionalNotificationProps,
   NotificationProps,
-  NotificationOwnProps,
-  NotificationComponent,
   NotificationsProviderProps,
 } from './components/Notification';
 
 export { Toggle } from './components/Toggle';
-export type {
-  ToggleProps,
-  ToggleOwnProps,
-  ToggleComponent,
-} from './components/Toggle';
+export type { ToggleProps } from './components/Toggle';
 
 export { ValidationMessage } from './components/ValidationMessage';
-export type {
-  ValidationMessageProps,
-  ValidationMessageOwnProps,
-  ValidationMessageComponent,
-} from './components/ValidationMessage';
+export type { ValidationMessageProps } from './components/ValidationMessage';
 
 export {
   useGenerateUniqueId,

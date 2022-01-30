@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
 import { NotificationContext } from './NotificationContext';
 import {
   NotificationManager,
@@ -10,7 +10,7 @@ export interface NotificationsProviderProps<
   T extends string,
   P extends AdditionalNotificationProps,
 > {
-  controller: NotificationManager<T, P>;
+  manager: NotificationManager<T, P>;
   static?: boolean;
   children: (props: ActiveNotificationData<T, P>) => ReactNode;
 }
@@ -19,23 +19,23 @@ export function NotificationsProvider<
   T extends string,
   P extends AdditionalNotificationProps = Record<never, never>,
 >({
-  controller,
+  manager,
   static: isStatic,
   children,
-}: NotificationsProviderProps<T, P>) {
+}: NotificationsProviderProps<T, P>): ReactElement {
   const [activeNotifications, setActiveNotifications] = useState(
-    controller.activeNotificationQueue.value,
+    manager.activeNotificationQueue.value,
   );
 
   useEffect(
     function subscribeToNotificationState() {
-      const unsubscribe = controller.activeNotificationQueue.subscribe(
+      const unsubscribe = manager.activeNotificationQueue.subscribe(
         setActiveNotifications,
       );
 
       return unsubscribe;
     },
-    [controller.activeNotificationQueue],
+    [manager.activeNotificationQueue],
   );
 
   return (
@@ -44,8 +44,8 @@ export function NotificationsProvider<
         <NotificationContext.Provider
           key={notification.id}
           value={{
-            remove: controller.remove,
-            update: controller.update as NotificationManager<
+            remove: manager.remove,
+            update: manager.update as NotificationManager<
               string,
               Record<never, never>
             >['update'],

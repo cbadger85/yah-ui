@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import { useGenerateUniqueId } from '../../hooks';
 import { FieldContext } from './FieldContext';
 import { useFieldState } from './useFieldState';
@@ -7,7 +7,7 @@ export interface FieldProps {
   children?: ReactNode;
 }
 
-export function Field({ children }: FieldProps) {
+export function Field({ children }: FieldProps): ReactElement {
   const [state, actions] = useFieldState();
   const fieldControlId = useGenerateUniqueId('field-control');
   const labelId = useGenerateUniqueId('label');
