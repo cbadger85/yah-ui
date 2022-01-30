@@ -1,13 +1,13 @@
 type Listener<T> = (val: T) => void;
 type Unsubscriber = () => void;
 
-export interface Observable<T> {
+export interface ReactiveStore<T> {
   readonly value: T;
   setValue: (value: T) => void;
   subscribe: (listener: Listener<T>) => Unsubscriber;
 }
 
-export class ObservableState<T> implements Observable<T> {
+export class Store<T> implements ReactiveStore<T> {
   #listeners: Listener<T>[] = [];
   #value: T;
 
@@ -29,7 +29,9 @@ export class ObservableState<T> implements Observable<T> {
   subscribe(listener: Listener<T>): Unsubscriber {
     this.#listeners.push(listener);
     return () => {
-      this.#listeners = this.#listeners.filter((l) => l !== listener);
+      this.#listeners = this.#listeners.filter(
+        (activeListener) => activeListener !== listener,
+      );
     };
   }
 }

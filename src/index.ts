@@ -31,7 +31,7 @@ export type {
   NotificationManger,
   NotificationStatus,
   ActiveNotificationData,
-  NotificationMetadata,
+  AdditionalNotificationProps,
   NotifyOptions,
   Notify,
   NotificationProps,
@@ -52,4 +52,4 @@ export {
 } from './hooks';
 
 export { mergeAttributes } from './utils';
-export type { Observable } from './utils';
+export type { ReactiveStore } from './utils';

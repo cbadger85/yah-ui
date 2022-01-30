@@ -3,21 +3,21 @@ import { NotificationContext } from './NotificationContext';
 import {
   NotificationsController,
   ActiveNotificationData,
-  NotificationMetadata,
+  AdditionalNotificationProps,
 } from './NotificationsManager';
 
 export interface NotificationsContainerProps<
   T extends string,
-  M extends NotificationMetadata,
+  M extends AdditionalNotificationProps,
 > {
   controller: NotificationsController<T, M>;
   static?: boolean;
-  children: (props: ActiveNotificationData<T, M>) => ReactNode;
+  children: (props: ActiveNotificationData<T, Partial<M>>) => ReactNode;
 }
 
 export function NotificationsContainer<
   T extends string,
-  M extends NotificationMetadata = Record<never, never>,
+  M extends AdditionalNotificationProps = Record<never, never>,
 >({
   controller,
   static: isStatic,
