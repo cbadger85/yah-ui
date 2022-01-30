@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useState } from 'react';
 import { NotificationContext } from './NotificationContext';
 import {
-  NotificationsController,
+  NotificationManager,
   ActiveNotificationData,
   AdditionalNotificationProps,
 } from './NotificationsManager';
@@ -10,9 +10,9 @@ export interface NotificationsProviderProps<
   T extends string,
   P extends AdditionalNotificationProps,
 > {
-  controller: NotificationsController<T, P>;
+  controller: NotificationManager<T, P>;
   static?: boolean;
-  children: (props: ActiveNotificationData<T, Partial<P>>) => ReactNode;
+  children: (props: ActiveNotificationData<T, P>) => ReactNode;
 }
 
 export function NotificationsProvider<
@@ -45,7 +45,7 @@ export function NotificationsProvider<
           key={notification.id}
           value={{
             remove: controller.remove,
-            update: controller.update as NotificationsController<
+            update: controller.update as NotificationManager<
               string,
               Record<never, never>
             >['update'],

@@ -4,13 +4,12 @@ import { Store, ReactiveStore, filterByField } from '../../utils';
 
 export type DefaultNotificationType = 'info' | 'success' | 'warn' | 'danger';
 
-export interface NotificationManagerConfig<T extends string> {
+export interface NotificationManagerConfig {
   /**
    * The types of notifications that should be emitted.
    *
    * @default ['info', 'success', 'warn', 'danger']
    */
-  types: T[];
   /**
    * The total number of notifications that should be displayed at once.
    *
@@ -49,25 +48,16 @@ export type ActiveNotificationData<
   status: NotificationStatus;
 };
 
-export type NotifyOptions<P extends AdditionalNotificationProps> = {
-  delay?: number;
-} & P;
-
-export type Notify<M extends AdditionalNotificationProps> = (
-  message: ReactNode,
-  options?: NotifyOptions<Partial<M>>,
-) => void;
-
 export const DEFAULT_NOTIFICATION_DELAY = 6000;
 
-export interface NotificationsController<
+export interface NotificationManager<
   T extends string = DefaultNotificationType,
   P extends AdditionalNotificationProps = Record<never, never>,
 > {
   readonly activeNotificationQueue: ReactiveStore<
     ActiveNotificationData<T, P>[]
   >;
-  readonly config: Required<NotificationManagerConfig<T>>;
+  readonly config: Required<NotificationManagerConfig>;
   add: (data: Omit<NotificationData<T, P>, 'id'>) => void;
   update: (
     data: Partial<ActiveNotificationData<T, P>> & { id: string },
@@ -77,29 +67,20 @@ export interface NotificationsController<
   clear: (option?: { all: boolean }) => void;
 }
 
-export interface NotificationManger<
-  T extends string,
-  P extends AdditionalNotificationProps = Record<never, never>,
-> {
-  notifier: Record<T, Notify<P>>;
-  controller: NotificationsController<T, P>;
-}
-
-class Controller<
+class Manager<
   T extends string = DefaultNotificationType,
   P extends AdditionalNotificationProps = Record<never, never>,
-> implements NotificationsController<T, P>
+> implements NotificationManager<T, P>
 {
   #pendingNotificationQueue: NotificationData<T, P>[] = [];
   readonly activeNotificationQueue = new Store<ActiveNotificationData<T, P>[]>(
     [],
   );
 
-  readonly config: Required<NotificationManagerConfig<T>>;
+  readonly config: Required<NotificationManagerConfig>;
 
-  constructor(config?: NotificationManagerConfig<T>) {
+  constructor(config?: NotificationManagerConfig) {
     this.config = {
-      types: config?.types || (['info', 'success', 'warn', 'danger'] as T[]),
       limit: config?.limit ?? 2,
       delay: config?.delay ?? DEFAULT_NOTIFICATION_DELAY,
     };
@@ -206,35 +187,8 @@ class Controller<
 }
 
 export function createNotificationManager<
+  T extends string = DefaultNotificationType,
   P extends AdditionalNotificationProps = Record<never, never>,
->(
-  config?: NotificationManagerConfig<DefaultNotificationType>,
-): NotificationManger<DefaultNotificationType, P>;
-export function createNotificationManager<
-  T extends string,
-  P extends AdditionalNotificationProps = Record<never, never>,
->(config: NotificationManagerConfig<T>): NotificationManger<T, P>;
-export function createNotificationManager<
-  T extends string,
-  P extends AdditionalNotificationProps = Record<never, never>,
->(config?: NotificationManagerConfig<T>): NotificationManger<T, P> {
-  const controller = new Controller<T, P>(config);
-
-  const notifier = controller.config.types.reduce<Record<T, Notify<P>>>(
-    (acc, type) => ({
-      ...acc,
-      [type]: (message: ReactNode, options?: NotifyOptions<P>) => {
-        const notification = {
-          message,
-          type,
-          ...options,
-        } as NotificationData<T, P>;
-
-        controller.add(notification);
-      },
-    }),
-    {} as never,
-  );
-
-  return { notifier, controller };
+>(config?: NotificationManagerConfig): NotificationManager<T, P> {
+  return new Manager<T, P>(config);
 }

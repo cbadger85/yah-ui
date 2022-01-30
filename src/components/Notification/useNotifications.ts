@@ -1,25 +1,17 @@
 import { useRef } from 'react';
-import { DefaultNotificationType, NotificationManger } from '.';
 import {
   createNotificationManager,
   NotificationManagerConfig,
   AdditionalNotificationProps,
+  DefaultNotificationType,
+  NotificationManager,
 } from './NotificationsManager';
 
 export function useNotifications<
+  T extends string = DefaultNotificationType,
   M extends AdditionalNotificationProps = Record<never, never>,
->(
-  config?: NotificationManagerConfig<DefaultNotificationType>,
-): NotificationManger<DefaultNotificationType, M>;
-export function useNotifications<
-  T extends string,
-  M extends AdditionalNotificationProps = Record<never, never>,
->(config: NotificationManagerConfig<T>): NotificationManger<T, M>;
-export function useNotifications<
-  T extends string,
-  M extends AdditionalNotificationProps = Record<never, never>,
->(config?: NotificationManagerConfig<T>): NotificationManger<T, M> {
+>(config?: NotificationManagerConfig): NotificationManager<T, M> {
   return useRef(
-    createNotificationManager<T, M>(config as NotificationManagerConfig<T>),
+    createNotificationManager<T, M>(config as NotificationManagerConfig),
   ).current;
 }

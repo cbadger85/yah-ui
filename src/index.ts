@@ -22,14 +22,11 @@ export {
 export type {
   DefaultNotificationType,
   NotificationData,
-  NotificationsController,
+  NotificationManager,
   NotificationManagerConfig,
-  NotificationManger,
   NotificationStatus,
   ActiveNotificationData,
   AdditionalNotificationProps,
-  NotifyOptions,
-  Notify,
   NotificationProps,
   NotificationsProviderProps,
 } from './components/Notification';
