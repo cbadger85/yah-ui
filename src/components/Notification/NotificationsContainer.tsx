@@ -8,21 +8,21 @@ import {
 
 export interface NotificationsContainerProps<
   T extends string,
-  M extends AdditionalNotificationProps,
+  P extends AdditionalNotificationProps,
 > {
-  controller: NotificationsController<T, M>;
+  controller: NotificationsController<T, P>;
   static?: boolean;
-  children: (props: ActiveNotificationData<T, Partial<M>>) => ReactNode;
+  children: (props: ActiveNotificationData<T, Partial<P>>) => ReactNode;
 }
 
 export function NotificationsContainer<
   T extends string,
-  M extends AdditionalNotificationProps = Record<never, never>,
+  P extends AdditionalNotificationProps = Record<never, never>,
 >({
   controller,
   static: isStatic,
   children,
-}: NotificationsContainerProps<T, M>) {
+}: NotificationsContainerProps<T, P>) {
   const [activeNotifications, setActiveNotifications] = useState(
     controller.activeNotificationQueue.value,
   );

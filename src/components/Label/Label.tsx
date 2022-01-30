@@ -1,24 +1,32 @@
-import React, { ComponentPropsWithRef, forwardRef, useContext } from 'react';
+import React, { forwardRef, ReactElement, Ref, useContext } from 'react';
+import { InheritableElementProps } from '../../types';
 import { FieldContext } from '../Field';
 
-export type LabelProps = ComponentPropsWithRef<'label'>;
+export type LabelOwnProps = {
+  ref?: Ref<HTMLLabelElement>;
+};
 
-export const Label = forwardRef<HTMLLabelElement, LabelProps>(function Label(
-  props,
-  ref,
+export type LabelProps = InheritableElementProps<'label', LabelOwnProps>;
+
+export type LabelComponent = (props: LabelProps) => ReactElement | null;
+
+export const Label: LabelComponent = forwardRef(function Label(
+  props: LabelProps,
+  ref: Ref<HTMLLabelElement>,
 ) {
   const [state] = useContext(FieldContext);
-
-  const labelProps: ComponentPropsWithRef<'label'> = {
-    ...props,
-    id: props.id ?? state.label.id,
-    htmlFor: props.htmlFor ?? state.fieldControl.id,
-  };
 
   /**
    *  The control will be a sibling/child of the label, with accessible
    *  identifiers passed through context.
    */
   // eslint-disable-next-line jsx-a11y/label-has-associated-control
-  return <label ref={ref} {...labelProps} />;
+  return (
+    <label
+      ref={ref}
+      {...props}
+      id={props.id ?? state.label.id}
+      htmlFor={props.htmlFor ?? state.fieldControl.id}
+    />
+  );
 });

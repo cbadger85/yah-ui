@@ -1,27 +1,35 @@
-import React, { ComponentPropsWithRef, forwardRef } from 'react';
+import React, { forwardRef, ReactElement, Ref } from 'react';
+import { InheritableElementProps } from '../../types';
 import { FieldButton, FieldButtonProps } from '../FieldControl';
 
-export type ToggleProps = ComponentPropsWithRef<'button'> & {
+export type ToggleOwnProps = {
   checked?: boolean;
   onToggle?: (checked: boolean) => void;
   invalid?: boolean;
   describedBy?: string;
+  ref?: Ref<HTMLButtonElement>;
 };
 
-export const Toggle = forwardRef<HTMLButtonElement, ToggleProps>(
-  function Toggle(
-    { checked, onToggle, ...props }: ToggleProps,
-    ref: ComponentPropsWithRef<'button'>['ref'],
-  ) {
-    const buttonProps: FieldButtonProps = {
-      ...props,
-      ['aria-checked']: checked ?? !!props['aria-checked'],
-      onClick(e) {
+export type ToggleProps = InheritableElementProps<'button', ToggleOwnProps>;
+
+export type ToggleComponent = (props: ToggleProps) => ReactElement | null;
+
+export const Toggle: ToggleComponent = forwardRef<
+  HTMLButtonElement,
+  ToggleProps
+>(function Toggle(
+  { checked, onToggle, ...props }: ToggleProps,
+  ref: FieldButtonProps['ref'],
+) {
+  return (
+    <FieldButton
+      ref={ref}
+      {...props}
+      aria-checked={checked ?? !!props['aria-checked']}
+      onClick={(e) => {
         props.onClick?.(e);
         onToggle?.(!checked);
-      },
-    };
-
-    return <FieldButton ref={ref} {...buttonProps} />;
-  },
-);
+      }}
+    />
+  );
+});

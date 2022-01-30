@@ -1,60 +1,60 @@
 import React, {
-  ComponentPropsWithRef,
   ElementType,
   forwardRef,
+  ReactElement,
   useContext,
   useEffect,
 } from 'react';
 import { useGenerateUniqueId } from '../../hooks';
-import { PolymorphicProps } from '../../types';
+import { PolymorphicComponentPropsWithRef, PolymorphicRef } from '../../types';
 import { noop } from '../../utils';
 import { FieldContext } from '../Field';
 
-export interface ValidationMessageOwnProps<E extends ElementType = 'span'> {
-  as?: E;
-}
+// can be replaced with a real type when ValidationMessage needs its own props.
+export type ValidationMessageOwnProps = Record<never, never>;
 
-export type ValidationMessageProps<E extends ElementType = 'span'> =
-  PolymorphicProps<E, ValidationMessageOwnProps<E>>;
+export type ValidationMessageProps<C extends ElementType = 'span'> =
+  PolymorphicComponentPropsWithRef<C, ValidationMessageOwnProps>;
 
-export const ValidationMessage = forwardRef(function ValidationMessage<
-  E extends ElementType = 'span',
->(
-  { as, ...props }: ValidationMessageProps<E>,
-  ref: ComponentPropsWithRef<E>['ref'],
-) {
-  const [_, { registerValidationMessage, removeValidationMessage }] =
-    useContext(FieldContext);
+export type ValidationMessageComponent = <C extends ElementType = 'span'>(
+  props: ValidationMessageProps<C>,
+) => ReactElement | null;
 
-  const generatedId = useGenerateUniqueId('validation-message');
-  const id = props?.id || generatedId;
+export const ValidationMessage: ValidationMessageComponent = forwardRef(
+  function ValidationMessage<C extends ElementType = 'span'>(
+    { as, ...props }: ValidationMessageProps<C>,
+    ref: PolymorphicRef<C>,
+  ) {
+    const [_, { registerValidationMessage, removeValidationMessage }] =
+      useContext(FieldContext);
 
-  useEffect(
-    function register() {
-      if (id === generatedId) {
-        registerValidationMessage({ id });
+    const generatedId = useGenerateUniqueId('validation-message');
+    const id = props?.id || generatedId;
 
-        return function cleanup() {
-          return removeValidationMessage(id);
-        };
-      } else {
-        return noop;
-      }
-    },
-    [generatedId, id, registerValidationMessage, removeValidationMessage],
-  );
+    useEffect(
+      function register() {
+        if (id === generatedId) {
+          registerValidationMessage({ id });
 
-  const Component = as || 'span';
+          return function cleanup() {
+            return removeValidationMessage(id);
+          };
+        } else {
+          return noop;
+        }
+      },
+      [generatedId, id, registerValidationMessage, removeValidationMessage],
+    );
 
-  const componentProps = {
-    ...props,
-    id,
-    ['aria-live']: props['aria-live'] ?? 'polite',
-  } as ComponentPropsWithRef<E>;
+    const Component = as || 'span';
 
-  return <Component ref={ref} {...componentProps} />;
-  // The implicit return type is a little complicated to understand, so this
-  // fuction is typed with a more open, but easier to understand type.
-}) as <E extends ElementType = 'span'>(
-  props: ValidationMessageProps<E>,
-) => JSX.Element;
+    return (
+      <Component
+        ref={ref}
+        {...props}
+        id={id}
+        aria-live={props['aria-live'] ?? 'polite'}
+      />
+    );
+  },
+);

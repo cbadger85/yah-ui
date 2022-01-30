@@ -1,10 +1,10 @@
 import React, {
-  ComponentPropsWithRef,
   ElementType,
   forwardRef,
+  ReactElement,
   useContext,
 } from 'react';
-import { PolymorphicProps } from '../../types';
+import { InheritableElementProps, PolymorphicRef } from '../../types';
 import { mergeAttributes } from '../../utils';
 import { FieldContext } from '../Field';
 
@@ -13,40 +13,57 @@ export interface FieldControlOwnProps {
   describedBy?: string;
 }
 
-export type FieldControlProps<E extends ElementType> = PolymorphicProps<
-  E,
+// Can't use PolymorphicComponentPropsWithRef because FieldControl does not have an `as` prop.
+export type FieldControlProps<C extends ElementType> = InheritableElementProps<
+  C,
   FieldControlOwnProps
->;
+> & { ref?: PolymorphicRef<C> };
 
-export function fieldControlFactory<E extends ElementType>(as?: E) {
-  return forwardRef<
-    E extends keyof HTMLElementTagNameMap ? HTMLElementTagNameMap[E] : never,
-    FieldControlProps<E>
-  >(function FieldControl({ invalid, describedBy, ...props }, ref) {
+export function fieldControlFactory<C extends ElementType>(as?: C) {
+  return forwardRef(function FieldControl(
+    { invalid, describedBy, ...props }: FieldControlProps<C>,
+    ref: PolymorphicRef<C>,
+  ) {
     const [state] = useContext(FieldContext);
 
     const Component = as || 'input';
 
-    const componentProps = {
-      ...props,
-      id: props.id ?? state.fieldControl.id,
-      ['aria-describedby']: mergeAttributes(
-        describedBy,
-        props['aria-describedby'],
-        ...state.validationMessages.map(({ id }) => id),
-      ),
-      ['aria-invalid']: invalid ?? props['aria-invalid'],
-    } as ComponentPropsWithRef<E>;
-
-    return <Component ref={ref} {...componentProps} />;
+    return (
+      <Component
+        {...props}
+        ref={ref}
+        id={props.id ?? state.fieldControl.id}
+        aria-describedby={mergeAttributes(
+          describedBy,
+          props['aria-describedby'],
+          ...state.validationMessages.map(({ id }) => id),
+        )}
+        aria-invalid={invalid ?? props['aria-invalid']}
+      />
+    );
   });
 }
 
-export const FieldButton = fieldControlFactory('button');
 export type FieldButtonProps = FieldControlProps<'button'>;
 
-export const Input = fieldControlFactory('input');
+export type FieldButtonComponent = (
+  props: FieldControlProps<'button'>,
+) => ReactElement | null;
+
+export const FieldButton: FieldButtonComponent = fieldControlFactory('button');
+
 export type InputProps = FieldControlProps<'input'>;
 
-export const Select = fieldControlFactory('select');
+export type InputComponent = (
+  props: FieldControlProps<'input'>,
+) => ReactElement | null;
+
+export const Input: InputComponent = fieldControlFactory('input');
+
 export type SelectProps = FieldControlProps<'select'>;
+
+export type SelectComponent = (
+  props: FieldControlProps<'select'>,
+) => ReactElement | null;
+
+export const Select: SelectComponent = fieldControlFactory('select');

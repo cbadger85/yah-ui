@@ -1,19 +1,29 @@
 import React, {
-  ComponentPropsWithRef,
+  ElementType,
   forwardRef,
+  ReactElement,
   useContext,
   useEffect,
 } from 'react';
 import { DEFAULT_NOTIFICATION_DELAY } from './NotificationsManager';
 import { NotificationContext } from './NotificationContext';
+import { PolymorphicComponentPropsWithRef, PolymorphicRef } from '../../types';
 
-export type NotificationProps = ComponentPropsWithRef<'div'> & {
+export type NotificationOwnProps = {
   onRemove?: () => void;
 };
+export type NotificationProps<C extends React.ElementType = 'div'> =
+  PolymorphicComponentPropsWithRef<C, NotificationOwnProps>;
 
-// TODO make component polymorphic
-export const Notification = forwardRef<HTMLDivElement, NotificationProps>(
-  function Notification({ onRemove, ...props }, ref) {
+export type NotificationComponent = <C extends ElementType = 'div'>(
+  props: NotificationProps<C>,
+) => ReactElement | null;
+
+export const Notification: NotificationComponent = forwardRef(
+  function Notification<C extends ElementType = 'div'>(
+    { onRemove, ...props }: NotificationProps<C>,
+    ref: PolymorphicRef<C>,
+  ) {
     const {
       remove,
       static: isStatic,
