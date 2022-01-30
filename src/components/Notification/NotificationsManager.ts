@@ -6,11 +6,6 @@ export type DefaultNotificationType = 'info' | 'success' | 'warn' | 'danger';
 
 export interface NotificationManagerConfig {
   /**
-   * The types of notifications that should be emitted.
-   *
-   * @default ['info', 'success', 'warn', 'danger']
-   */
-  /**
    * The total number of notifications that should be displayed at once.
    *
    * @default 2
