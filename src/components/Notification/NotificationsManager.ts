@@ -1,8 +1,12 @@
 import { ReactNode } from 'react';
 import { generateUniqueId } from '../../hooks';
-import { Store, ReactiveStore, filterByField } from '../../utils';
-
-export type DefaultNotificationType = 'info' | 'success' | 'warn' | 'danger';
+import {
+  Store,
+  filterByField,
+  setPausableTimeout,
+  Listener,
+  Unsubscriber,
+} from '../../utils';
 
 export interface NotificationManagerConfig {
   /**
@@ -17,70 +21,157 @@ export interface NotificationManagerConfig {
    * @default 6000
    */
   delay?: number;
+  /**
+   * If true, the manager will not remove the component when the status
+   * is changed to `inactive`.
+   *
+   * @default false
+   */
+  static?: boolean;
 }
-
-/**
- * The status of the active notification
- */
-export type NotificationStatus = 'inactive' | 'active';
 
 export type AdditionalNotificationProps = Record<PropertyKey, unknown>;
 
 export type NotificationData<
-  T extends string = DefaultNotificationType,
+  T extends string,
   P extends AdditionalNotificationProps = Record<never, never>,
 > = {
+  /**
+   * The generated id of the notification.
+   */
   id: string;
+  /**
+   * The message to be sent.
+   */
   message: ReactNode;
+  /**
+   * The type of message eg. "info", "warn", "error".
+   * */
   type: T;
+  /**
+   * Time in ms the notification should be displayed. This will override the
+   * delay in the config.
+   */
   delay?: number;
 } & P;
 
 export type ActiveNotificationData<
-  T extends string = DefaultNotificationType,
+  T extends string,
   P extends AdditionalNotificationProps = Record<never, never>,
 > = NotificationData<T, P> & {
-  status: NotificationStatus;
+  /**
+   * The delay from `manager.add` or, if not provided, the delay from the config
+   */
+  readonly delay: number;
+  /**
+   * The status of the active notification
+   */
+  readonly status: 'inactive' | 'active';
+  /**
+   * `true` if the current notification is paused
+   */
+  readonly isPaused: boolean;
+  /**
+   * Pauses the notifications delay timer.
+   *
+   * @returns The time remaining on the notification delay timer.
+   */
+  pause: () => number;
+  /**
+   * Resumes the notification delay timer.
+   */
+  resume: () => void;
+  /**
+   * If `config.static` is `true`, then sets the notification status to `inactive`.
+   * Otherwise, removes the notification.
+   */
+  close: () => void;
 };
 
 export const DEFAULT_NOTIFICATION_DELAY = 6000;
 
 export interface NotificationManager<
-  T extends string = DefaultNotificationType,
+  T extends string,
   P extends AdditionalNotificationProps = Record<never, never>,
 > {
-  readonly activeNotificationQueue: ReactiveStore<
-    ActiveNotificationData<T, P>[]
-  >;
   /**
+   * The list of active notifications
+   */
+  readonly notifications: ActiveNotificationData<T, P>[];
+  /**
+   * Subscribe to changes in active notifications. The listener
+   * callback will be called every time `notifications` has changed.
+   */
+  subscribe: (
+    listener: Listener<ActiveNotificationData<T, P>[]>,
+  ) => Unsubscriber;
+  /**
+   * Add a new notification. If the active queue is at the limit set in the config,
+   * then it will add the notification to the pending queue.
+   *
    * @returns Id of the created notification
    */
   add: (data: Omit<NotificationData<T, P>, 'id'>) => string;
-  update: (
-    data: Partial<ActiveNotificationData<T, P>> & { id: string },
-  ) => void;
+  /**
+   * Finds the notification by id and, if `config.static` is `true`, then sets the
+   * notification status to `inactive`. Otherwise, removes the notification.
+   */
   remove: (id: string) => void;
-  cancel: (id: string) => void;
+  /**
+   * clears the pending notification queue. if `option.all` is set, clears both the
+   * pending and active notification queues.
+   *
+   * @param option.all  clears both active and pending notification queues.
+   */
   clear: (option?: { all: boolean }) => void;
+  /**
+   * Finds the active notification by id, and removes it. Pending notification ids
+   * will be ignored.
+   *
+   * NOTE: This will ignore the static property in the config and always remove
+   * the active notification.
+   *
+   */
+  unmount: (id: string) => void;
 }
 
 class Manager<
-  T extends string = DefaultNotificationType,
+  T extends string,
   P extends AdditionalNotificationProps = Record<never, never>,
 > implements NotificationManager<T, P>
 {
   #pendingNotificationQueue: NotificationData<T, P>[] = [];
-  readonly activeNotificationQueue = new Store<ActiveNotificationData<T, P>[]>(
+  readonly #activeNotificationQueue = new Store<ActiveNotificationData<T, P>[]>(
     [],
   );
-
   readonly #config: Required<NotificationManagerConfig>;
+
+  get notifications() {
+    return this.#activeNotificationQueue.value;
+  }
+
+  subscribe(listener: Listener<ActiveNotificationData<T, P>[]>): Unsubscriber {
+    return this.#activeNotificationQueue.subscribe(listener);
+  }
 
   constructor(config?: NotificationManagerConfig) {
     this.#config = {
       limit: config?.limit ?? 2,
       delay: config?.delay ?? DEFAULT_NOTIFICATION_DELAY,
+      static: false,
     };
+  }
+
+  unmount(id: string) {
+    const notifications = this.#activeNotificationQueue.value;
+
+    const activeNotifications = notifications.filter(
+      (notification) => notification.id !== id,
+    );
+
+    if (activeNotifications.length < notifications.length) {
+      this.#activeNotificationQueue.setValue(activeNotifications);
+    }
   }
 
   add(data: Omit<NotificationData<T, P>, 'id'>) {
@@ -94,11 +185,8 @@ class Manager<
       delay: data.delay ?? this.#config.delay,
     } as NotificationData<T, P>;
 
-    if (this.activeNotificationQueue.value.length < this.#config.limit) {
-      this.activeNotificationQueue.setValue([
-        ...this.activeNotificationQueue.value,
-        { ...notification, status: 'active' },
-      ]);
+    if (this.#activeNotificationQueue.value.length < this.#config.limit) {
+      this.#addActiveNotification(notification);
     } else {
       this.#pendingNotificationQueue = [
         ...this.#pendingNotificationQueue,
@@ -109,64 +197,60 @@ class Manager<
     return id;
   }
 
-  update(
-    updatedNotification: Partial<ActiveNotificationData<T, P>> & { id: string },
-  ) {
-    if (this.#isActiveNotification(updatedNotification.id)) {
-      this.activeNotificationQueue.setValue(
-        this.activeNotificationQueue.value.map((notification) =>
-          notification.id === updatedNotification.id
-            ? { ...notification, ...updatedNotification }
-            : notification,
-        ),
-      );
-    } else {
-      const { status, ...updatedPendingNotification } = updatedNotification;
-      this.#pendingNotificationQueue = this.#pendingNotificationQueue.map(
-        (notification) =>
-          notification.id === updatedPendingNotification.id
-            ? { ...notification, ...updatedPendingNotification }
-            : notification,
-      );
-    }
+  #addActiveNotification(notification: NotificationData<T, P>) {
+    const delay = notification.delay ?? this.#config.delay;
+
+    const { pause, resume, isPaused } = setPausableTimeout(() => {
+      this.#removeActiveNotification(notification.id);
+    }, notification.delay ?? DEFAULT_NOTIFICATION_DELAY);
+
+    this.#activeNotificationQueue.setValue([
+      ...this.#activeNotificationQueue.value,
+      {
+        ...notification,
+        status: 'active',
+        delay,
+        pause,
+        resume,
+        close: () => this.remove(notification.id),
+        isPaused,
+      },
+    ]);
   }
 
-  remove(id: string) {
-    const updatedActiveNotifications = this.#removeNotification(
-      this.activeNotificationQueue.value,
-      id,
-    );
+  #removeActiveNotification(id: string) {
+    const activeNotifications = this.#activeNotificationQueue.value.map(
+      (notification) =>
+        notification.id === id
+          ? { ...notification, status: 'inactive' }
+          : notification,
+    ) as ActiveNotificationData<T, P>[];
 
-    if (
-      updatedActiveNotifications.length ===
-      this.activeNotificationQueue.value.length
-    ) {
-      return; // No notifications were removed, so we should do nothing
+    this.#activeNotificationQueue.setValue(activeNotifications);
+
+    if (!this.#config.static) {
+      this.unmount(id);
     }
 
     if (this.#pendingNotificationQueue.length) {
       const [nextNotification, ...updatedNotificationQueue] =
         this.#pendingNotificationQueue;
 
-      this.activeNotificationQueue.setValue([
-        ...updatedActiveNotifications,
-        { ...nextNotification, status: 'active' } as ActiveNotificationData<
-          T,
-          P
-        >,
-      ]);
+      this.#addActiveNotification({
+        ...nextNotification,
+        status: 'active',
+      } as ActiveNotificationData<T, P>);
+
       this.#pendingNotificationQueue = updatedNotificationQueue;
-    } else {
-      this.activeNotificationQueue.setValue(updatedActiveNotifications);
     }
   }
 
-  cancel(id: string) {
+  remove(id: string) {
     if (this.#isActiveNotification(id)) {
-      return this.remove(id);
+      return this.#removeActiveNotification(id);
     }
 
-    const filteredPendingNotifications = this.#removeNotification(
+    const filteredPendingNotifications = this.#filterNotificationQueueById(
       this.#pendingNotificationQueue,
       id,
     );
@@ -176,34 +260,34 @@ class Manager<
 
   clear(options?: { all: boolean }) {
     if (options?.all) {
-      this.activeNotificationQueue.setValue([]);
+      this.#activeNotificationQueue.setValue([]);
     }
     this.#pendingNotificationQueue = [];
   }
 
-  #removeNotification = <N extends NotificationData<T, P>>(
+  #filterNotificationQueueById = <N extends NotificationData<T, P>>(
     notifications: N[],
     notificationId: string,
   ): N[] => filterByField(notifications, 'id', notificationId);
 
   #isActiveNotification = (id: string) =>
-    this.activeNotificationQueue.value.some(
+    this.#activeNotificationQueue.value.some(
       (notification) => notification.id === id,
     );
 }
 
 export function createNotificationManager<
-  T extends string = DefaultNotificationType,
+  T extends string,
   P extends AdditionalNotificationProps = Record<never, never>,
 >(config?: NotificationManagerConfig): NotificationManager<T, P> {
   const manager = new Manager<T, P>(config);
 
   return {
     add: manager.add.bind(manager),
-    cancel: manager.cancel.bind(manager),
     clear: manager.clear.bind(manager),
     remove: manager.remove.bind(manager),
-    update: manager.update.bind(manager),
-    activeNotificationQueue: manager.activeNotificationQueue,
+    unmount: manager.unmount.bind(manager),
+    subscribe: manager.subscribe.bind(manager),
+    notifications: manager.notifications,
   };
 }

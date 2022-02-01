@@ -14,21 +14,15 @@ export type { LabelProps } from './components/Label';
 export {
   useNotifications,
   createNotificationManager,
-  NotificationsProvider,
   Notification,
-  CloseNotificationButton,
 } from './components/Notification';
 export type {
-  CloseNotificationButtonProps,
-  DefaultNotificationType,
   NotificationData,
   NotificationManager,
   NotificationManagerConfig,
-  NotificationStatus,
   ActiveNotificationData,
   AdditionalNotificationProps,
   NotificationProps,
-  NotificationsProviderProps,
 } from './components/Notification';
 
 export { Toggle } from './components/Toggle';
@@ -45,7 +39,6 @@ export {
 } from './hooks';
 
 export { mergeAttributes } from './utils';
-export type { ReactiveStore } from './utils';
 
 export type {
   ExtendableProps,

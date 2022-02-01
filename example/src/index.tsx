@@ -2,6 +2,7 @@ import React from 'react';
 import { StrictMode, useState } from 'react';
 import { render } from 'react-dom';
 import { Field, Input, Label } from 'yah-ui';
+import { Toasts } from './components/Toasts/Toasts';
 
 function App() {
   const [input, setInput] = useState('');
@@ -15,7 +16,7 @@ function App() {
 
 render(
   <StrictMode>
-    <App />
+    <Toasts />
   </StrictMode>,
   document.getElementById('root'),
 );

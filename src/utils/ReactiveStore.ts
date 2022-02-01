@@ -1,5 +1,5 @@
-type Listener<T> = (val: T) => void;
-type Unsubscriber = () => void;
+export type Listener<T> = (val: T) => void;
+export type Unsubscriber = () => void;
 
 export interface ReactiveStore<T> {
   readonly value: T;

@@ -1,12 +1,4 @@
-import React, {
-  ElementType,
-  forwardRef,
-  ReactElement,
-  useContext,
-  useEffect,
-} from 'react';
-import { DEFAULT_NOTIFICATION_DELAY } from './NotificationsManager';
-import { NotificationContext } from './NotificationContext';
+import React, { ElementType, forwardRef, ReactElement } from 'react';
 import { PolymorphicComponentPropsWithRef, PolymorphicRef } from '../../types';
 
 export type NotificationOwnProps = {
@@ -21,50 +13,15 @@ export type NotificationComponent = <C extends ElementType = 'div'>(
 
 export const Notification: NotificationComponent = forwardRef(
   function Notification<C extends ElementType = 'div'>(
-    { onRemove, ...props }: NotificationProps<C>,
+    { onRemove, as, ...props }: NotificationProps<C>,
     ref: PolymorphicRef<C>,
   ) {
-    const {
-      remove,
-      static: isStatic,
-      notification,
-      update,
-      status,
-    } = useContext(NotificationContext) || {};
-
-    useEffect(
-      function deactivateAfterDelay() {
-        const timer = setTimeout(() => {
-          if (notification?.id && update) {
-            update({ id: notification.id, status: 'inactive' });
-          }
-        }, notification?.delay || DEFAULT_NOTIFICATION_DELAY);
-
-        return function cleanup() {
-          clearTimeout(timer);
-        };
-      },
-      [notification?.delay, notification?.id, update],
-    );
-
-    useEffect(
-      function removeIfInactive() {
-        if (status === 'inactive') {
-          onRemove?.();
-
-          if (!isStatic && notification?.id && remove) {
-            remove(notification.id);
-          }
-        }
-      },
-      [status, onRemove, isStatic, notification?.id, remove],
-    );
+    const Component = as || 'div';
 
     return (
-      <div
+      <Component
         {...props}
         ref={ref}
-        id={props.id ?? notification?.id}
         role={props.role ?? 'alert'}
         aria-live={props['aria-live'] ?? 'polite'}
       />
