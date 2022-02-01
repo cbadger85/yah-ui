@@ -27,8 +27,8 @@ export type NotificationStatus = 'inactive' | 'active';
 export type AdditionalNotificationProps = Record<PropertyKey, unknown>;
 
 export type NotificationData<
-  T extends string,
-  P extends AdditionalNotificationProps,
+  T extends string = DefaultNotificationType,
+  P extends AdditionalNotificationProps = Record<never, never>,
 > = {
   id: string;
   message: ReactNode;
@@ -37,8 +37,8 @@ export type NotificationData<
 } & P;
 
 export type ActiveNotificationData<
-  T extends string,
-  P extends AdditionalNotificationProps,
+  T extends string = DefaultNotificationType,
+  P extends AdditionalNotificationProps = Record<never, never>,
 > = NotificationData<T, P> & {
   status: NotificationStatus;
 };
@@ -52,8 +52,10 @@ export interface NotificationManager<
   readonly activeNotificationQueue: ReactiveStore<
     ActiveNotificationData<T, P>[]
   >;
-  readonly config: Required<NotificationManagerConfig>;
-  add: (data: Omit<NotificationData<T, P>, 'id'>) => void;
+  /**
+   * @returns Id of the created notification
+   */
+  add: (data: Omit<NotificationData<T, P>, 'id'>) => string;
   update: (
     data: Partial<ActiveNotificationData<T, P>> & { id: string },
   ) => void;
@@ -72,10 +74,10 @@ class Manager<
     [],
   );
 
-  readonly config: Required<NotificationManagerConfig>;
+  readonly #config: Required<NotificationManagerConfig>;
 
   constructor(config?: NotificationManagerConfig) {
-    this.config = {
+    this.#config = {
       limit: config?.limit ?? 2,
       delay: config?.delay ?? DEFAULT_NOTIFICATION_DELAY,
     };
@@ -89,10 +91,10 @@ class Manager<
       id,
       message: data.message,
       type: data.type,
-      delay: data.delay ?? this.config.delay,
+      delay: data.delay ?? this.#config.delay,
     } as NotificationData<T, P>;
 
-    if (this.activeNotificationQueue.value.length < this.config.limit) {
+    if (this.activeNotificationQueue.value.length < this.#config.limit) {
       this.activeNotificationQueue.setValue([
         ...this.activeNotificationQueue.value,
         { ...notification, status: 'active' },
@@ -103,6 +105,8 @@ class Manager<
         notification,
       ];
     }
+
+    return id;
   }
 
   update(
@@ -132,6 +136,13 @@ class Manager<
       this.activeNotificationQueue.value,
       id,
     );
+
+    if (
+      updatedActiveNotifications.length ===
+      this.activeNotificationQueue.value.length
+    ) {
+      return; // No notifications were removed, so we should do nothing
+    }
 
     if (this.#pendingNotificationQueue.length) {
       const [nextNotification, ...updatedNotificationQueue] =
@@ -185,5 +196,14 @@ export function createNotificationManager<
   T extends string = DefaultNotificationType,
   P extends AdditionalNotificationProps = Record<never, never>,
 >(config?: NotificationManagerConfig): NotificationManager<T, P> {
-  return new Manager<T, P>(config);
+  const manager = new Manager<T, P>(config);
+
+  return {
+    add: manager.add.bind(manager),
+    cancel: manager.cancel.bind(manager),
+    clear: manager.clear.bind(manager),
+    remove: manager.remove.bind(manager),
+    update: manager.update.bind(manager),
+    activeNotificationQueue: manager.activeNotificationQueue,
+  };
 }

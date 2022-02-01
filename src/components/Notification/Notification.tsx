@@ -64,6 +64,7 @@ export const Notification: NotificationComponent = forwardRef(
       <div
         {...props}
         ref={ref}
+        id={props.id ?? notification?.id}
         role={props.role ?? 'alert'}
         aria-live={props['aria-live'] ?? 'polite'}
       />
