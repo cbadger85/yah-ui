@@ -1,4 +1,3 @@
-import React from 'react';
 import { StrictMode, useState } from 'react';
 import { render } from 'react-dom';
 import { Field, Input, Label } from 'yah-ui';

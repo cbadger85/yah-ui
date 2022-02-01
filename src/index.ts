@@ -17,12 +17,12 @@ export {
   Notification,
 } from './components/Notification';
 export type {
+  ActiveNotificationData,
   NotificationData,
   NotificationManager,
   NotificationManagerConfig,
-  ActiveNotificationData,
-  AdditionalNotificationProps,
   NotificationProps,
+  UseNotifications,
 } from './components/Notification';
 
 export { Toggle } from './components/Toggle';

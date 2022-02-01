@@ -1,13 +1,20 @@
 import { AnimatePresence, motion, useAnimation, Variants } from 'framer-motion';
-import React, { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ActiveNotificationData, Notification, useNotifications } from 'yah-ui';
 import styles from './Toasts.module.scss';
 
 let toastCount = 1;
 
+type NotificationType = 'info' | 'sucess' | 'error';
+
+type NotificationData = ActiveNotificationData<ReactNode, NotificationType>;
+
 export function Toasts() {
-  const { notifications, add } = useNotifications();
+  const { notifications, add } = useNotifications<
+    ReactNode,
+    NotificationType
+  >();
 
   function toast() {
     add({ type: 'info', message: `TOAST ${toastCount++}` });
@@ -22,7 +29,7 @@ export function Toasts() {
   );
 }
 
-export function Toaster({ toasts }: { toasts: ActiveNotificationData[] }) {
+function Toaster({ toasts }: { toasts: NotificationData[] }) {
   return createPortal(
     <div className={styles.toaster}>
       <div className={styles.toastContainer}>
@@ -37,20 +44,14 @@ export function Toaster({ toasts }: { toasts: ActiveNotificationData[] }) {
   );
 }
 
-function Toast({
-  pause,
-  resume,
-  close,
-  message,
-  delay,
-}: ActiveNotificationData) {
+function Toast({ pause, resume, close, message, delay }: NotificationData) {
   const [timeRemaining, setTimeRemaining] = useState(delay);
   const controls = useAnimation();
 
   const notificationVariants = {
-    enter: { y: '-120%', opacity: 0.5, zIndex: 1 },
-    visible: { y: 0, opacity: 1 },
-    exit: { y: '-120%', opacity: 0.5, zIndex: -1 },
+    enter: { y: '-200%', scale: 0.9, zIndex: 1 },
+    visible: { y: 0, scale: 1 },
+    exit: { y: '-200%', scale: 0.9, opacity: 0, zIndex: -1 },
   };
 
   const progressBarVariants: Variants = {
@@ -61,8 +62,12 @@ function Toast({
     },
     intialResume: { scaleX: timeRemaining / delay },
     resume: {
-      scaleX: 0,
-      transition: { duration: timeRemaining / 1000, ease: 'linear' },
+      scaleX: [timeRemaining / delay, 0],
+      transition: {
+        times: [0, 1],
+        duration: timeRemaining / 1000,
+        ease: 'linear',
+      },
     },
   };
 
@@ -80,7 +85,6 @@ function Toast({
       }}
       onMouseLeave={() => {
         resume();
-        controls.set('intialResume');
         controls.start('resume');
       }}
       variants={notificationVariants}

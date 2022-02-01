@@ -2,7 +2,7 @@ export type Listener<T> = (val: T) => void;
 export type Unsubscriber = () => void;
 
 export interface ReactiveStore<T> {
-  readonly value: T;
+  getValue: () => T;
   setValue: (value: T) => void;
   subscribe: (listener: Listener<T>) => Unsubscriber;
 }
@@ -15,7 +15,7 @@ export class Store<T> implements ReactiveStore<T> {
     this.#value = value;
   }
 
-  get value(): T {
+  getValue(): T {
     return this.#value;
   }
 

@@ -1,44 +1,50 @@
-import { useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
+import { hasProperty } from '../../utils';
 import {
-  AdditionalNotificationProps,
+  ActiveNotificationData,
   createNotificationManager,
-  NotificationData,
   NotificationManager,
   NotificationManagerConfig,
-  ActiveNotificationData,
 } from './NotificationsManager';
 
-export type UseNotificationsConfig<
-  T extends string,
-  P extends AdditionalNotificationProps = Record<never, never>,
-> = NotificationManagerConfig & {
-  mananger?: NotificationManager<T, P>;
+export type UseNotifications<M = ReactNode, T extends string = string> = Omit<
+  NotificationManager<M, T>,
+  'subscribe' | 'getNotifications'
+> & {
+  /**
+   * the current list of active notifications
+   */
+  notifications: ActiveNotificationData<M, T>[];
 };
 
-export type UseNotifications<
-  T extends string,
-  P extends AdditionalNotificationProps = Record<never, never>,
-> = {
-  notifications: ActiveNotificationData<T, P>[];
-  add: (data: Omit<NotificationData<T, P>, 'id'>) => string;
-  remove: (id: string) => void;
-  clear: (option?: { all: boolean }) => void;
-  unmount: (id: string) => void;
-};
-
-export function useNotifications<
-  T extends string,
-  P extends AdditionalNotificationProps = Record<never, never>,
->(
-  config?: UseNotificationsConfig<T, P>,
-): Omit<NotificationManager<T, P>, 'subscribe'> {
-  const manager = useRef<NotificationManager<T, P>>(
-    config?.mananger
-      ? config.mananger
-      : createNotificationManager<T, P>(config as NotificationManagerConfig),
+/**
+ * A React wrapper around `NotificationManager` that has already subscribed to the notifications.
+ *
+ * @param manager an instance of `NotificationManager` created by `createNotificationManager`
+ */
+export function useNotifications<M = ReactNode, T extends string = string>(
+  manager: NotificationManager<M, T>,
+): UseNotifications<M, T>;
+/**
+ * A React wrapper around `NotificationManager` that has already subscribed to the notifications.
+ *
+ * @param config the configuration object for the `NotificationManager`
+ */
+export function useNotifications<M = ReactNode, T extends string = string>(
+  config?: NotificationManagerConfig,
+): UseNotifications<M, T>;
+export function useNotifications<M = ReactNode, T extends string = string>(
+  param?: NotificationManagerConfig | NotificationManager<M, T>,
+): UseNotifications<M, T> {
+  const manager = useRef<NotificationManager<M, T>>(
+    isNotificationManager<M, T>(param)
+      ? param
+      : createNotificationManager<M, T>(param),
   ).current;
 
-  const [notifications, setNotifications] = useState(manager.notifications);
+  const [notifications, setNotifications] = useState(
+    manager.getNotifications(),
+  );
 
   useEffect(
     function subscribeToNotificationState() {
@@ -46,7 +52,7 @@ export function useNotifications<
 
       return unsubscribe;
     },
-    [manager, manager.notifications],
+    [manager, manager.getNotifications],
   );
 
   return {
@@ -56,4 +62,23 @@ export function useNotifications<
     remove: manager.remove,
     unmount: manager.unmount,
   };
+}
+
+function isNotificationManager<M, T extends string>(
+  notificationManger: unknown,
+): notificationManger is NotificationManager<M, T> {
+  return (
+    hasProperty(notificationManger, 'subscribe') &&
+    typeof notificationManger.subscribe === 'function' &&
+    hasProperty(notificationManger, 'add') &&
+    typeof notificationManger.add === 'function' &&
+    hasProperty(notificationManger, 'clear') &&
+    typeof notificationManger.clear === 'function' &&
+    hasProperty(notificationManger, 'remove') &&
+    typeof notificationManger.remove === 'function' &&
+    hasProperty(notificationManger, 'unmount') &&
+    typeof notificationManger.unmount === 'function' &&
+    hasProperty(notificationManger, 'notifications') &&
+    Array.isArray(notificationManger.notifications)
+  );
 }

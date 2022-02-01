@@ -69,5 +69,5 @@
     }
   },
   "parser": "@typescript-eslint/parser",
-  "ignorePatterns": ["dist"]
+  "ignorePatterns": ["dist", "example"]
 }
