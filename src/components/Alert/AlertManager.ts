@@ -13,7 +13,7 @@ export interface AlertManagerConfig {
    *
    * @default 6000
    */
-  delay?: number;
+  duration?: number;
   /**
    * If true, the manager will not remove the alert when the status
    * is changed to `inactive`.
@@ -38,9 +38,9 @@ export type AlertData<M = string, T extends string = string> = {
   type: T;
   /**
    * Time in ms the alert should be displayed. This will override the
-   * delay in the config.
+   * duration in the config.
    */
-  delay?: number;
+  duration?: number;
 };
 
 export type ActiveAlertData<M = string, T extends string = string> = AlertData<
@@ -48,25 +48,25 @@ export type ActiveAlertData<M = string, T extends string = string> = AlertData<
   T
 > & {
   /**
-   * The delay from `manager.add` or, if not provided, the delay from the config
+   * The duration from `manager.add` or, if not provided, the duration from the config.
    */
-  readonly delay: number;
+  readonly duration: number;
   /**
-   * The status of the active alert
+   * The status of the active alert.
    */
   readonly status: 'inactive' | 'active';
   /**
-   * `true` if the current alert is paused
+   * `true` if the current alert is paused.
    */
   readonly isPaused: boolean;
   /**
-   * Pauses the alert's delay timer.
+   * Pauses the alert's duration timer.
    *
-   * @returns The time remaining on the alert's delay timer.
+   * @returns The time remaining on the alert's duration timer.
    */
   pause: () => number;
   /**
-   * Resumes the alert's delay timer.
+   * Resumes the alert's duration timer.
    */
   resume: () => void;
   /**
@@ -76,7 +76,7 @@ export type ActiveAlertData<M = string, T extends string = string> = AlertData<
   close: () => void;
 };
 
-export const DEFAULT_ALERT_DELAY = 6000;
+export const DEFAULT_ALERT_DURATION = 6000;
 
 export interface AlertManager<M = string, T extends string = string> {
   /**
@@ -125,7 +125,7 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
   constructor(config?: AlertManagerConfig) {
     this.#config = {
       limit: config?.limit ?? 2,
-      delay: config?.delay ?? DEFAULT_ALERT_DELAY,
+      duration: config?.duration ?? DEFAULT_ALERT_DURATION,
       static: !!config?.static,
     };
   }
@@ -138,7 +138,7 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
       id,
       message: alert.message,
       type: alert.type,
-      delay: alert.delay ?? this.#config.delay,
+      duration: alert.duration ?? this.#config.duration,
     } as AlertData<M, T>;
 
     if (this.getAlerts().length < this.#config.limit) {
@@ -199,18 +199,18 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
   }
 
   #addActiveAlert(alert: AlertData<M, T>) {
-    const delay = alert.delay ?? this.#config.delay;
+    const duration = alert.duration ?? this.#config.duration;
 
     const { pause, resume, isPaused } = setPausableTimeout(() => {
       this.#removeActiveAlert(alert.id);
-    }, alert.delay ?? DEFAULT_ALERT_DELAY);
+    }, alert.duration ?? DEFAULT_ALERT_DURATION);
 
     this.#activeAlertQueue.setValue([
       ...this.getAlerts(),
       {
         ...alert,
         status: 'active',
-        delay,
+        duration,
         pause,
         resume,
         close: () => this.remove(alert.id),

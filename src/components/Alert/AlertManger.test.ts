@@ -31,7 +31,7 @@ describe('AlertManager', () => {
       );
     });
 
-    it('should remove the alert after the delay timer is up', () => {
+    it('should remove the alert after the duration timer is up', () => {
       jest.useFakeTimers();
 
       const { add, getAlerts } = createAlertManager();
@@ -50,7 +50,7 @@ describe('AlertManager', () => {
       expect(getAlerts()).toHaveLength(0);
     });
 
-    it('should set the alert to inactive after the delay timer is up if config.static is true', () => {
+    it('should set the alert to inactive after the duration timer is up if config.static is true', () => {
       jest.useFakeTimers();
 
       const { add, getAlerts } = createAlertManager({ static: true });
@@ -72,7 +72,7 @@ describe('AlertManager', () => {
       );
     });
 
-    it('should add an alert with the default delay', () => {
+    it('should add an alert with the default duration', () => {
       const manager = createAlertManager();
 
       const alert: Omit<AlertData, 'id'> = {
@@ -84,14 +84,14 @@ describe('AlertManager', () => {
 
       expect(manager.getAlerts()).toContainEqual(
         expect.objectContaining({
-          delay: 6000,
+          duration: 6000,
         }),
       );
     });
 
-    it('should use the delay from the config if available', () => {
-      const delay = 8000;
-      const manager = createAlertManager({ delay });
+    it('should use the duration from the config if available', () => {
+      const duration = 8000;
+      const manager = createAlertManager({ duration });
 
       const alert: Omit<AlertData, 'id'> = {
         type: 'info',
@@ -102,25 +102,25 @@ describe('AlertManager', () => {
 
       expect(manager.getAlerts()).toContainEqual(
         expect.objectContaining({
-          delay,
+          duration,
         }),
       );
     });
 
-    it('should override the config delay if a message provides a delay', () => {
-      const manager = createAlertManager({ delay: 8000 });
+    it('should override the config duration if a message provides a duration', () => {
+      const manager = createAlertManager({ duration: 8000 });
 
       const alert: Omit<AlertData, 'id'> = {
         type: 'info',
         message: 'This is a test message',
-        delay: 10000,
+        duration: 10000,
       };
 
       manager.add(alert);
 
       expect(manager.getAlerts()).toContainEqual(
         expect.objectContaining({
-          delay: alert.delay,
+          duration: alert.duration,
         }),
       );
     });
@@ -452,8 +452,8 @@ describe('AlertManager', () => {
 
   describe('subscribe', () => {
     it('should call the listener with the active notification list when it changes', () => {
-      const delay = 5000;
-      const manager = createAlertManager({ limit: 1, delay });
+      const duration = 5000;
+      const manager = createAlertManager({ limit: 1, duration: duration });
 
       const listener = jest.fn();
 
@@ -471,7 +471,7 @@ describe('AlertManager', () => {
           id: expect.any(String),
           type: alert.type,
           message: alert.message,
-          delay,
+          duration,
           pause: expect.any(Function),
           resume: expect.any(Function),
           close: expect.any(Function),

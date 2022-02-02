@@ -37,8 +37,8 @@ function Toaster({ toasts }: { toasts: ActiveAlertData[] }) {
   );
 }
 
-function Toast({ pause, resume, close, message, delay }: ActiveAlertData) {
-  const [timeRemaining, setTimeRemaining] = useState(delay);
+function Toast({ pause, resume, close, message, duration }: ActiveAlertData) {
+  const [timeRemaining, setTimeRemaining] = useState(duration);
   const controls = useAnimation();
 
   const toastVariants = {
@@ -51,11 +51,11 @@ function Toast({ pause, resume, close, message, delay }: ActiveAlertData) {
     initial: { scaleX: 1 },
     animate: {
       scaleX: 0,
-      transition: { duration: delay / 1000, ease: 'linear' },
+      transition: { duration: duration / 1000, ease: 'linear' },
     },
-    intialResume: { scaleX: timeRemaining / delay },
+    intialResume: { scaleX: timeRemaining / duration },
     resume: {
-      scaleX: [timeRemaining / delay, 0],
+      scaleX: [timeRemaining / duration, 0],
       transition: {
         times: [0, 1],
         duration: timeRemaining / 1000,
