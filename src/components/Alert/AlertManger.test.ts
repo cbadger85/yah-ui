@@ -286,6 +286,40 @@ describe('AlertManager', () => {
     });
   });
 
+  describe('getAlerts', () => {
+    it('should return a list of active alerts', () => {
+      jest.useFakeTimers();
+
+      const manager = createAlertManager({ limit: 1 });
+
+      const alert1: Omit<AlertData, 'id'> = {
+        type: 'info',
+        message: 'This is test message 1',
+      };
+
+      manager.add(alert1);
+
+      const alert2: Omit<AlertData, 'id'> = {
+        type: 'info',
+        message: 'This is test message 2',
+      };
+
+      manager.add(alert2);
+
+      expect(manager.getAlerts()).toHaveLength(1);
+      expect(manager.getAlerts()).toContainEqual(
+        expect.objectContaining({ ...alert1, status: 'active' }),
+      );
+
+      jest.runOnlyPendingTimers();
+
+      expect(manager.getAlerts()).toHaveLength(1);
+      expect(manager.getAlerts()).toContainEqual(
+        expect.objectContaining({ ...alert2, status: 'active' }),
+      );
+    });
+  });
+
   describe('remove', () => {
     it('should remove the alert if it is in the active queue', () => {
       const manager = createAlertManager();
