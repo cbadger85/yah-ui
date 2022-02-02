@@ -11,19 +11,15 @@ export type {
 export { Label } from './components/Label';
 export type { LabelProps } from './components/Label';
 
-export {
-  useNotifications,
-  createNotificationManager,
-  Notification,
-} from './components/Notification';
+export { useAlerts, createAlertManager, Alert } from './components/Alert';
 export type {
-  ActiveNotificationData,
-  NotificationData,
-  NotificationManager,
-  NotificationManagerConfig,
-  NotificationProps,
-  UseNotifications,
-} from './components/Notification';
+  ActiveAlertData,
+  AlertData,
+  AlertManager,
+  AlertManagerConfig,
+  AlertProps,
+  UseAlerts,
+} from './components/Alert';
 
 export { Toggle } from './components/Toggle';
 export type { ToggleProps } from './components/Toggle';

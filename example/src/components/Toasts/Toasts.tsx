@@ -1,20 +1,13 @@
 import { AnimatePresence, motion, useAnimation, Variants } from 'framer-motion';
 import { ReactNode, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ActiveNotificationData, Notification, useNotifications } from 'yah-ui';
+import { ActiveAlertData, Alert, useAlerts } from 'yah-ui';
 import styles from './Toasts.module.scss';
 
 let toastCount = 1;
 
-type NotificationType = 'info' | 'sucess' | 'error';
-
-type NotificationData = ActiveNotificationData<ReactNode, NotificationType>;
-
 export function Toasts() {
-  const { notifications, add } = useNotifications<
-    ReactNode,
-    NotificationType
-  >();
+  const { alerts, add } = useAlerts();
 
   function toast() {
     add({ type: 'info', message: `TOAST ${toastCount++}` });
@@ -23,13 +16,13 @@ export function Toasts() {
   return createPortal(
     <div>
       <button onClick={() => toast()}>TOAST</button>
-      <Toaster toasts={notifications} />
+      <Toaster toasts={alerts} />
     </div>,
     document.getElementById('toast-root') as HTMLElement,
   );
 }
 
-function Toaster({ toasts }: { toasts: NotificationData[] }) {
+function Toaster({ toasts }: { toasts: ActiveAlertData[] }) {
   return createPortal(
     <div className={styles.toaster}>
       <div className={styles.toastContainer}>
@@ -44,11 +37,11 @@ function Toaster({ toasts }: { toasts: NotificationData[] }) {
   );
 }
 
-function Toast({ pause, resume, close, message, delay }: NotificationData) {
+function Toast({ pause, resume, close, message, delay }: ActiveAlertData) {
   const [timeRemaining, setTimeRemaining] = useState(delay);
   const controls = useAnimation();
 
-  const notificationVariants = {
+  const toastVariants = {
     enter: { y: '-200%', scale: 0.9, zIndex: 1 },
     visible: { y: 0, scale: 1 },
     exit: { y: '-200%', scale: 0.9, opacity: 0, zIndex: -1 },
@@ -76,7 +69,7 @@ function Toast({ pause, resume, close, message, delay }: NotificationData) {
   }, [controls]);
 
   return (
-    <Notification
+    <Alert
       className={styles.toast}
       as={motion.div}
       onMouseEnter={() => {
@@ -87,7 +80,7 @@ function Toast({ pause, resume, close, message, delay }: NotificationData) {
         resume();
         controls.start('resume');
       }}
-      variants={notificationVariants}
+      variants={toastVariants}
       initial="enter"
       animate="visible"
       exit="exit"
@@ -102,6 +95,6 @@ function Toast({ pause, resume, close, message, delay }: NotificationData) {
           animate={controls}
         />
       </div>
-    </Notification>
+    </Alert>
   );
 }
