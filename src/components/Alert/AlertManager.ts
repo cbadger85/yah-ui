@@ -126,26 +126,8 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
     this.#config = {
       limit: config?.limit ?? 2,
       delay: config?.delay ?? DEFAULT_ALERT_DELAY,
-      static: false,
+      static: !!config?.static,
     };
-  }
-
-  getAlerts() {
-    return this.#activeAlertQueue.getValue();
-  }
-
-  subscribe(listener: Listener<ActiveAlertData<M, T>[]>): Unsubscriber {
-    return this.#activeAlertQueue.subscribe(listener);
-  }
-
-  unmount(id: string) {
-    const alerts = this.getAlerts();
-
-    const activeAlerts = alerts.filter((alert) => alert.id !== id);
-
-    if (activeAlerts.length < alerts.length) {
-      this.#activeAlertQueue.setValue(activeAlerts);
-    }
   }
 
   add(alert: Omit<AlertData<M, T>, 'id'>) {
@@ -166,6 +148,45 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
     }
 
     return id;
+  }
+
+  clear(options?: { all: boolean }) {
+    if (options?.all) {
+      this.#activeAlertQueue.setValue([]);
+    }
+    this.#pendingAlertQueue = [];
+  }
+
+  getAlerts() {
+    return this.#activeAlertQueue.getValue();
+  }
+
+  remove(id: string) {
+    const isActiveAlert = this.getAlerts().some((alert) => alert.id === id);
+
+    if (isActiveAlert) {
+      return this.#removeActiveAlert(id);
+    }
+
+    const filteredPendingAlerts = this.#pendingAlertQueue.filter(
+      (alert) => id !== alert.id,
+    );
+
+    this.#pendingAlertQueue = filteredPendingAlerts;
+  }
+
+  subscribe(listener: Listener<ActiveAlertData<M, T>[]>): Unsubscriber {
+    return this.#activeAlertQueue.subscribe(listener);
+  }
+
+  unmount(id: string) {
+    const alerts = this.getAlerts();
+
+    const activeAlerts = alerts.filter((alert) => alert.id !== id);
+
+    if (activeAlerts.length < alerts.length) {
+      this.#activeAlertQueue.setValue(activeAlerts);
+    }
   }
 
   #addActiveAlert(alert: AlertData<M, T>) {
@@ -189,27 +210,6 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
     ]);
   }
 
-  remove(id: string) {
-    const isActiveAlert = this.getAlerts().some((alert) => alert.id === id);
-
-    if (isActiveAlert) {
-      return this.#removeActiveAlert(id);
-    }
-
-    const filteredPendingAlerts = this.#pendingAlertQueue.filter(
-      (alert) => id !== alert.id,
-    );
-
-    this.#pendingAlertQueue = filteredPendingAlerts;
-  }
-
-  clear(options?: { all: boolean }) {
-    if (options?.all) {
-      this.#activeAlertQueue.setValue([]);
-    }
-    this.#pendingAlertQueue = [];
-  }
-
   #removeActiveAlert(id: string) {
     const activeAlerts = this.getAlerts().map((alert) =>
       alert.id === id ? { ...alert, status: 'inactive' } : alert,
@@ -221,7 +221,11 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
       this.unmount(id);
     }
 
-    if (this.#pendingAlertQueue.length) {
+    if (
+      this.#pendingAlertQueue.length &&
+      // 👇 I didn't think this needed to be here, but apparently, sometimes it does. hm...
+      this.getAlerts().length < this.#config.limit
+    ) {
       const [nextAlert, ...updatedAlertQueue] = this.#pendingAlertQueue;
 
       this.#addActiveAlert({
