@@ -362,7 +362,7 @@ describe('AlertManager', () => {
       );
     });
 
-    it('should not add a pending alert to the active queue if when a static alert is removed', () => {
+    it('should not add a pending alert to the active queue when a static alert is removed', () => {
       const manager = createAlertManager({ limit: 1, static: true });
 
       const alert1Id = manager.add({

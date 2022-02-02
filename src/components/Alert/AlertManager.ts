@@ -162,9 +162,7 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
   }
 
   remove(id: string) {
-    const isActiveAlert = this.getAlerts().some((alert) => alert.id === id);
-
-    if (isActiveAlert) {
+    if (this.#isActiveAlert(id)) {
       return this.#removeActiveAlert(id);
     }
 
@@ -180,12 +178,23 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
   }
 
   unmount(id: string) {
-    const alerts = this.getAlerts();
+    if (!this.#isActiveAlert(id)) {
+      return;
+    }
 
-    const activeAlerts = alerts.filter((alert) => alert.id !== id);
+    const activeAlerts = this.getAlerts().filter((alert) => alert.id !== id);
 
-    if (activeAlerts.length < alerts.length) {
-      this.#activeAlertQueue.setValue(activeAlerts);
+    this.#activeAlertQueue.setValue(activeAlerts);
+
+    if (this.#pendingAlertQueue.length) {
+      const [nextAlert, ...updatedAlertQueue] = this.#pendingAlertQueue;
+
+      this.#addActiveAlert({
+        ...nextAlert,
+        status: 'active',
+      } as ActiveAlertData<M, T>);
+
+      this.#pendingAlertQueue = updatedAlertQueue;
     }
   }
 
@@ -210,7 +219,15 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
     ]);
   }
 
+  #isActiveAlert(id: string) {
+    return this.getAlerts().some((alert) => id === alert.id);
+  }
+
   #removeActiveAlert(id: string) {
+    if (!this.#isActiveAlert(id)) {
+      return;
+    }
+
     const activeAlerts = this.getAlerts().map((alert) =>
       alert.id === id ? { ...alert, status: 'inactive' } : alert,
     ) as ActiveAlertData<M, T>[];
@@ -219,21 +236,6 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
 
     if (!this.#config.static) {
       this.unmount(id);
-    }
-
-    if (
-      this.#pendingAlertQueue.length &&
-      // 👇 I didn't think this needed to be here, but apparently, sometimes it does. hm...
-      this.getAlerts().length < this.#config.limit
-    ) {
-      const [nextAlert, ...updatedAlertQueue] = this.#pendingAlertQueue;
-
-      this.#addActiveAlert({
-        ...nextAlert,
-        status: 'active',
-      } as ActiveAlertData<M, T>);
-
-      this.#pendingAlertQueue = updatedAlertQueue;
     }
   }
 }
