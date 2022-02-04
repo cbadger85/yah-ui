@@ -10,6 +10,7 @@ import { readFileSync } from 'fs';
 const externals = new Set([
   ...Object.keys(pkg.dependencies || {}),
   ...Object.keys(pkg.peerDependencies || {}),
+  '@swc/helpers',
 ]);
 
 const isWatchMode = !!process.env.ROLLUP_WATCH;
@@ -30,7 +31,7 @@ export default [
         sourcemapExcludeSources: true,
       },
       {
-        file: 'dist/index.cjs.cjs',
+        file: 'dist/index.cjs.js',
         format: 'cjs',
         sourcemap: isWatchMode,
         sourcemapExcludeSources: true,

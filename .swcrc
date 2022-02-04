@@ -3,7 +3,8 @@
     "parser": {
       "syntax": "typescript",
       "tsx": true
-    }
+    },
+    "externalHelpers": true
   },
   "sourceMaps": true
 }
