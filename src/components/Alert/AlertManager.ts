@@ -213,7 +213,6 @@ class Manager<M> implements AlertManager<M> {
 
   #addActiveAlert(alert: AlertData<M>) {
     const duration = alert.duration ?? this.#config.duration;
-    console.log('config duration', duration);
     warning(
       duration !== Infinity,
       'A duration of Infinity will be treated as 0',

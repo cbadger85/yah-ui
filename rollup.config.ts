@@ -1,9 +1,11 @@
-import esbuild from 'rollup-plugin-esbuild';
 import { defineConfig } from 'rollup';
 import path from 'path';
 import dts from 'rollup-plugin-dts';
 import pkg from './package.json';
 import del from 'rollup-plugin-delete';
+import { transform } from '@swc/core';
+import resolve from '@rollup/plugin-node-resolve';
+import { readFileSync } from 'fs';
 
 const externals = new Set([
   ...Object.keys(pkg.dependencies || {}),
@@ -34,7 +36,22 @@ export default [
         sourcemapExcludeSources: true,
       },
     ],
-    plugins: [del({ targets: 'dist/*', runOnce: isWatchMode }), esbuild()],
+    plugins: [
+      del({ targets: 'dist/*', runOnce: isWatchMode }),
+      resolve({ extensions: ['.ts', '.tsx'] }),
+      // adhoc plugin to use swc as transpiler
+      {
+        name: 'swc',
+        transform(code) {
+          return transform(
+            code,
+            JSON.parse(
+              readFileSync(path.join(process.cwd(), '.swcrc'), 'utf8'),
+            ),
+          );
+        },
+      },
+    ],
   }),
   defineConfig({
     ...baseConfig,
