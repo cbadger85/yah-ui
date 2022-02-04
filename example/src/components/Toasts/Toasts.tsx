@@ -1,5 +1,5 @@
 import { AnimatePresence, motion, useAnimation, Variants } from 'framer-motion';
-import { ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ActiveAlertData, Alert, useAlerts } from 'yah-ui';
 import styles from './Toasts.module.scss';
@@ -13,12 +13,11 @@ export function Toasts() {
     add({ type: 'info', message: `TOAST ${toastCount++}` });
   }
 
-  return createPortal(
+  return (
     <div>
       <button onClick={() => toast()}>TOAST</button>
       <Toaster toasts={alerts} />
-    </div>,
-    document.getElementById('toast-root') as HTMLElement,
+    </div>
   );
 }
 
@@ -86,7 +85,9 @@ function Toast({ pause, resume, close, message, duration }: ActiveAlertData) {
       exit="exit"
     >
       <div>{message}</div>
-      <button onClick={() => close()}>Close</button>
+      <button className={styles.closeButton} onClick={() => close()}>
+        <span className={styles.srOnly}>close</span>×
+      </button>
       <div className={styles.progressBarContainer}>
         <motion.div
           className={styles.progressBar}

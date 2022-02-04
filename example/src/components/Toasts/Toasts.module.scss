@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+
 .toaster {
   position: fixed;
   top: 0;
@@ -5,6 +7,8 @@
   height: 0;
   width: 100%;
   overflow: visible;
+
+  font-family: 'Open Sans', sans-serif;
 }
 
 .toastContainer {
@@ -22,8 +26,9 @@
   color: white;
   border-radius: 4px;
   margin: 8px 0;
-  padding: 8px;
+  padding: 12px;
   position: relative;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .progressBarContainer {
@@ -40,4 +45,40 @@
   width: 100%;
   height: 100%;
   border-radius: 2px;
+}
+
+.closeButton {
+  border: none;
+  padding: 0;
+  background-color: inherit;
+  color: white;
+  border-radius: 100px;
+  font-size: 32px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  width: 32px;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 1px navy;
+  }
+
+  &:hover {
+    background-color: steelblue;
+  }
+}
+
+.srOnly {
+  display: block;
+  position: fixed;
+  height: 1px;
+  width: 1px;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
 }

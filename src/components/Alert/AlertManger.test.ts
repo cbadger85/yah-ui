@@ -226,6 +226,14 @@ describe('AlertManager', () => {
         ]),
       );
     });
+
+    it.todo(
+      'should warn the user when adding the message if config.duration is set to Infinity',
+    );
+
+    it.todo(
+      'should warn the user when adding the message if alert.duration is set to Infinity',
+    );
   });
 
   describe('clear', () => {
@@ -283,6 +291,162 @@ describe('AlertManager', () => {
       manager.clear({ all: true });
 
       expect(manager.getAlerts()).toHaveLength(0);
+    });
+  });
+
+  describe('configure', () => {
+    it('should update the config', () => {
+      jest.useFakeTimers();
+
+      const manager = createAlertManager();
+
+      const alert1: Omit<AlertData, 'id'> = {
+        type: 'info',
+        message: 'This is test message 1',
+      };
+      const alert2: Omit<AlertData, 'id'> = {
+        type: 'info',
+        message: 'This is test message 2',
+      };
+
+      const alert1Id = manager.add(alert1);
+      const alert2Id = manager.add(alert2);
+
+      manager.configure({ limit: 3, duration: 3000, static: true });
+
+      const alert3: Omit<AlertData, 'id'> = {
+        type: 'info',
+        message: 'This is test message 3',
+      };
+
+      const alert3Id = manager.add(alert3);
+
+      expect(manager.getAlerts()).toHaveLength(3);
+
+      jest.advanceTimersByTime(3000);
+
+      expect(manager.getAlerts()).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            ...alert1,
+            id: alert1Id,
+            status: 'active',
+            duration: 6000,
+          }),
+          expect.objectContaining({
+            ...alert2,
+            id: alert2Id,
+            status: 'active',
+            duration: 6000,
+          }),
+          expect.objectContaining({
+            ...alert3,
+            id: alert3Id,
+            status: 'inactive',
+            duration: 3000,
+          }),
+        ]),
+      );
+    });
+
+    it('should only update the provided fields', () => {
+      jest.useFakeTimers();
+
+      const manager = createAlertManager({
+        static: true,
+        duration: 3000,
+        limit: 1,
+      });
+
+      const alert1: Omit<AlertData, 'id'> = {
+        type: 'info',
+        message: 'This is test message 1',
+      };
+
+      const alert1Id = manager.add(alert1);
+
+      manager.configure({ duration: 4000 });
+
+      const alert2: Omit<AlertData, 'id'> = {
+        type: 'info',
+        message: 'This is test message 2',
+      };
+
+      const alert2Id = manager.add(alert2);
+
+      expect(manager.getAlerts()).toEqual([
+        expect.objectContaining({
+          ...alert1,
+          id: alert1Id,
+          status: 'active',
+          duration: 3000,
+        }),
+      ]);
+
+      jest.advanceTimersToNextTimer();
+
+      expect(manager.getAlerts()).toEqual([
+        expect.objectContaining({
+          ...alert1,
+          id: alert1Id,
+          status: 'inactive',
+          duration: 3000,
+        }),
+      ]);
+
+      manager.unmount(alert1Id);
+
+      expect(manager.getAlerts()).toEqual([
+        expect.objectContaining({
+          ...alert2,
+          id: alert2Id,
+          status: 'active',
+          duration: 4000,
+        }),
+      ]);
+
+      jest.advanceTimersToNextTimer();
+
+      expect(manager.getAlerts()).toEqual([
+        expect.objectContaining({
+          ...alert2,
+          id: alert2Id,
+          status: 'inactive',
+          duration: 4000,
+        }),
+      ]);
+    });
+
+    it('should set the duration to 0 if it is set to infinity', () => {
+      jest.useFakeTimers();
+
+      const manager = createAlertManager({
+        static: true,
+      });
+
+      const alert1: Omit<AlertData, 'id'> = {
+        type: 'info',
+        message: 'This is test message 1',
+      };
+
+      manager.add(alert1);
+
+      manager.configure({ duration: Infinity });
+
+      const alert2: Omit<AlertData, 'id'> = {
+        type: 'info',
+        message: 'This is test message 2',
+      };
+
+      const alert2Id = manager.add(alert2);
+
+      expect(manager.getAlerts()).toContainEqual(
+        expect.objectContaining({
+          ...alert2,
+          id: alert2Id,
+          duration: 0,
+        }),
+      );
     });
   });
 

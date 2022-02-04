@@ -29,3 +29,14 @@ export function groupByUnique<T>(
     };
   }, {});
 }
+
+export function warning(
+  assertion: unknown,
+  message: string | (() => string),
+): void {
+  if (!assertion && process.env.NODE_ENV !== 'production') {
+    const messageString = typeof message === 'function' ? message() : message;
+
+    console.warn(`WARNING: ${messageString}`);
+  }
+}

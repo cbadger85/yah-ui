@@ -9,7 +9,7 @@ import {
 
 export type UseAlerts<M = string, T extends string = string> = Omit<
   AlertManager<M, T>,
-  'subscribe' | 'getAlerts'
+  'subscribe' | 'getAlerts' | 'configure'
 > & {
   /**
    * the current list of active alerts
@@ -48,7 +48,16 @@ export function useAlerts<M = string, T extends string = string>(
 
       return unsubscribe;
     },
-    [manager, manager.getAlerts],
+    [manager],
+  );
+
+  useEffect(
+    function updateConfig() {
+      if (!isAlertManager<M, T>(param)) {
+        manager.configure(param);
+      }
+    },
+    [param, manager],
   );
 
   return {
