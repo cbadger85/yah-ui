@@ -10,7 +10,7 @@ export function Toasts() {
   const { alerts, add } = useAlerts();
 
   function toast() {
-    add({ type: 'info', message: `TOAST ${toastCount++}` });
+    add({ message: `TOAST ${toastCount++}` });
   }
 
   return (

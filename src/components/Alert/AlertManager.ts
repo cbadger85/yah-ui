@@ -30,7 +30,7 @@ export interface AlertManagerConfig {
   static?: boolean;
 }
 
-export type AlertData<M = string, T extends string = string> = {
+export type AlertData<M = string> = {
   /**
    * The generated id of the alert.
    */
@@ -40,20 +40,13 @@ export type AlertData<M = string, T extends string = string> = {
    */
   message: M;
   /**
-   * The type of alrt eg. "info", "warn", "error".
-   * */
-  type: T;
-  /**
    * Time in ms the alert should be displayed. This will override the
    * duration in the config.
    */
   duration?: number;
 };
 
-export type ActiveAlertData<M = string, T extends string = string> = AlertData<
-  M,
-  T
-> & {
+export type ActiveAlertData<M = string> = AlertData<M> & {
   /**
    * The duration from `manager.add` or, if not provided, the duration from the config.
    * A value of Infinity will be ignored and replaced with a 0.
@@ -84,22 +77,22 @@ export type ActiveAlertData<M = string, T extends string = string> = AlertData<
   close: () => void;
 };
 
-export interface AlertManager<M = string, T extends string = string> {
+export interface AlertManager<M = string> {
   /**
    * Get the current list of active alerts
    */
-  getAlerts: () => ActiveAlertData<M, T>[];
+  getAlerts: () => ActiveAlertData<M>[];
   /**
    * Subscribe to changes in active alerts.
    */
-  subscribe: (listener: Listener<ActiveAlertData<M, T>[]>) => Unsubscriber;
+  subscribe: (listener: Listener<ActiveAlertData<M>[]>) => Unsubscriber;
   /**
    * Add a new alert. If the active queue is at the limit set in the config,
    * then it will add the alert to the pending queue.
    *
    * @returns Id of the created alert
    */
-  add: (alert: Omit<AlertData<M, T>, 'id'>) => string;
+  add: (alert: Omit<AlertData<M>, 'id'>) => string;
   /**
    * Finds the alert by id and, if `config.static` is `true`, then sets the
    * alert status to `inactive`. Otherwise, removes the alert.
@@ -132,9 +125,9 @@ const DEFAULT_CONFIG: Required<AlertManagerConfig> = {
   static: false,
 };
 
-class Manager<M, T extends string> implements AlertManager<M, T> {
-  #pendingAlertQueue: AlertData<M, T>[] = [];
-  readonly #activeAlertQueue = new Store<ActiveAlertData<M, T>[]>([]);
+class Manager<M> implements AlertManager<M> {
+  #pendingAlertQueue: AlertData<M>[] = [];
+  readonly #activeAlertQueue = new Store<ActiveAlertData<M>[]>([]);
   #config: Required<AlertManagerConfig>;
 
   constructor(config?: AlertManagerConfig) {
@@ -147,18 +140,15 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
   ): Required<AlertManagerConfig> {
     return {
       limit: config?.limit ?? baseConfig.limit,
-      duration:
-        config?.duration === Infinity
-          ? 0
-          : config?.duration ?? baseConfig.duration,
+      duration: config?.duration ?? baseConfig.duration,
       static: config?.static ?? baseConfig.static,
     };
   }
 
-  add(alert: Omit<AlertData<M, T>, 'id'>) {
+  add(alert: Omit<AlertData<M>, 'id'>) {
     const id = generateUniqueId('toast');
 
-    const newAlert: AlertData<M, T> = { ...alert, id };
+    const newAlert: AlertData<M> = { ...alert, id };
 
     if (this.getAlerts().length < this.#config.limit) {
       this.#addActiveAlert(newAlert);
@@ -196,7 +186,7 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
     this.#pendingAlertQueue = filteredPendingAlerts;
   }
 
-  subscribe(listener: Listener<ActiveAlertData<M, T>[]>): Unsubscriber {
+  subscribe(listener: Listener<ActiveAlertData<M>[]>): Unsubscriber {
     return this.#activeAlertQueue.subscribe(listener);
   }
 
@@ -215,21 +205,19 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
       this.#addActiveAlert({
         ...nextAlert,
         status: 'active',
-      } as ActiveAlertData<M, T>);
+      } as ActiveAlertData<M>);
 
       this.#pendingAlertQueue = updatedAlertQueue;
     }
   }
 
-  #addActiveAlert(alert: AlertData<M, T>) {
+  #addActiveAlert(alert: AlertData<M>) {
+    const duration = alert.duration ?? this.#config.duration;
+    console.log('config duration', duration);
     warning(
-      alert.duration !== Infinity || this.#config.duration !== Infinity,
+      duration !== Infinity,
       'A duration of Infinity will be treated as 0',
     );
-
-    const duration =
-      (alert.duration === Infinity ? 0 : alert.duration) ??
-      (this.#config.duration === Infinity ? 0 : this.#config.duration);
 
     const { pause, resume, isPaused } = setPausableTimeout(() => {
       this.#removeActiveAlert(alert.id);
@@ -240,7 +228,7 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
       {
         ...alert,
         status: 'active',
-        duration,
+        duration: duration === Infinity ? 0 : duration,
         pause,
         resume,
         close: () => this.remove(alert.id),
@@ -260,7 +248,7 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
 
     const activeAlerts = this.getAlerts().map((alert) =>
       alert.id === id ? { ...alert, status: 'inactive' } : alert,
-    ) as ActiveAlertData<M, T>[];
+    ) as ActiveAlertData<M>[];
 
     this.#activeAlertQueue.setValue(activeAlerts);
 
@@ -270,10 +258,10 @@ class Manager<M, T extends string> implements AlertManager<M, T> {
   }
 }
 
-export function createAlertManager<M = string, T extends string = string>(
+export function createAlertManager<M = string>(
   config?: AlertManagerConfig,
-): AlertManager<M, T> {
-  const manager = new Manager<M, T>(config);
+): AlertManager<M> {
+  const manager = new Manager<M>(config);
 
   return {
     add: manager.add.bind(manager),

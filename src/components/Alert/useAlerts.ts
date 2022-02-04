@@ -7,14 +7,14 @@ import {
   createAlertManager,
 } from './AlertManager';
 
-export type UseAlerts<M = string, T extends string = string> = Omit<
-  AlertManager<M, T>,
+export type UseAlerts<M = string> = Omit<
+  AlertManager<M>,
   'subscribe' | 'getAlerts' | 'configure'
 > & {
   /**
    * the current list of active alerts
    */
-  alerts: ActiveAlertData<M, T>[];
+  alerts: ActiveAlertData<M>[];
 };
 
 /**
@@ -22,22 +22,20 @@ export type UseAlerts<M = string, T extends string = string> = Omit<
  *
  * @param manager an instance of `AlertManager` created by `createAlertManager`
  */
-export function useAlerts<M = string, T extends string = string>(
-  manager: AlertManager<M, T>,
-): UseAlerts<M, T>;
+export function useAlerts<M = string>(manager: AlertManager<M>): UseAlerts<M>;
 /**
  * A React wrapper around `AlertManager` that has already subscribed to the alerts.
  *
  * @param config the configuration object for the `AlertManager`
  */
-export function useAlerts<M = string, T extends string = string>(
+export function useAlerts<M = string>(
   config?: AlertManagerConfig,
-): UseAlerts<M, T>;
-export function useAlerts<M = string, T extends string = string>(
-  param?: AlertManagerConfig | AlertManager<M, T>,
-): UseAlerts<M, T> {
-  const manager = useRef<AlertManager<M, T>>(
-    isAlertManager<M, T>(param) ? param : createAlertManager<M, T>(param),
+): UseAlerts<M>;
+export function useAlerts<M = string>(
+  param?: AlertManagerConfig | AlertManager<M>,
+): UseAlerts<M> {
+  const manager = useRef<AlertManager<M>>(
+    isAlertManager<M>(param) ? param : createAlertManager<M>(param),
   ).current;
 
   const [alerts, setAlerts] = useState(manager.getAlerts());
@@ -53,7 +51,7 @@ export function useAlerts<M = string, T extends string = string>(
 
   useEffect(
     function updateConfig() {
-      if (!isAlertManager<M, T>(param)) {
+      if (!isAlertManager<M>(param)) {
         manager.configure(param);
       }
     },
@@ -69,9 +67,9 @@ export function useAlerts<M = string, T extends string = string>(
   };
 }
 
-function isAlertManager<M, T extends string>(
+function isAlertManager<M>(
   alertManager: unknown,
-): alertManager is AlertManager<M, T> {
+): alertManager is AlertManager<M> {
   return (
     hasProperty(alertManager, 'subscribe') &&
     typeof alertManager.subscribe === 'function' &&

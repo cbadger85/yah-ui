@@ -1,5 +1,6 @@
 import { resetIds } from '../../hooks';
 import { createAlertManager, AlertData } from './AlertManager';
+import * as commonUtils from '../../utils/common';
 
 beforeEach(() => {
   resetIds();
@@ -15,7 +16,6 @@ describe('AlertManager', () => {
       const { add, getAlerts } = createAlertManager();
 
       const alert: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is a test message',
       };
 
@@ -37,7 +37,6 @@ describe('AlertManager', () => {
       const { add, getAlerts } = createAlertManager();
 
       const alert: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is a test message',
       };
 
@@ -56,7 +55,6 @@ describe('AlertManager', () => {
       const { add, getAlerts } = createAlertManager({ static: true });
 
       const alert: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is a test message',
       };
 
@@ -76,7 +74,6 @@ describe('AlertManager', () => {
       const manager = createAlertManager();
 
       const alert: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is a test message',
       };
 
@@ -94,7 +91,6 @@ describe('AlertManager', () => {
       const manager = createAlertManager({ duration });
 
       const alert: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is a test message',
       };
 
@@ -111,7 +107,6 @@ describe('AlertManager', () => {
       const manager = createAlertManager({ duration: 8000 });
 
       const alert: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is a test message',
         duration: 10000,
       };
@@ -129,21 +124,18 @@ describe('AlertManager', () => {
       const manager = createAlertManager();
 
       const alert1: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 1',
       };
 
       manager.add(alert1);
 
       const alert2: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 2',
       };
 
       manager.add(alert2);
 
       const alert3: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 3',
       };
 
@@ -178,21 +170,18 @@ describe('AlertManager', () => {
       const manager = createAlertManager({ limit: 1 });
 
       const alert1: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 1',
       };
 
       manager.add(alert1);
 
       const alert2: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 2',
       };
 
       manager.add(alert2);
 
       const alert3: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 3',
       };
 
@@ -227,13 +216,25 @@ describe('AlertManager', () => {
       );
     });
 
-    it.todo(
-      'should warn the user when adding the message if config.duration is set to Infinity',
-    );
+    it('should warn the user when adding the message if config.duration is set to Infinity', () => {
+      jest.spyOn(commonUtils, 'warning');
 
-    it.todo(
-      'should warn the user when adding the message if alert.duration is set to Infinity',
-    );
+      const manager = createAlertManager({ duration: Infinity });
+
+      manager.add({ message: 'Test Message' });
+
+      expect(commonUtils.warning).toBeCalledWith(false, expect.any(String));
+    });
+
+    it('should warn the user when adding the message if alert.duration is set to Infinity', () => {
+      jest.spyOn(commonUtils, 'warning');
+
+      const manager = createAlertManager();
+
+      manager.add({ message: 'Test Message', duration: Infinity });
+
+      expect(commonUtils.warning).toBeCalledWith(false, expect.any(String));
+    });
   });
 
   describe('clear', () => {
@@ -243,14 +244,12 @@ describe('AlertManager', () => {
       const manager = createAlertManager({ limit: 1 });
 
       const alert1: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 1',
       };
 
       manager.add(alert1);
 
       const alert2: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 2',
       };
 
@@ -273,14 +272,12 @@ describe('AlertManager', () => {
       const manager = createAlertManager({ limit: 1 });
 
       const alert1: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 1',
       };
 
       manager.add(alert1);
 
       const alert2: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 2',
       };
 
@@ -301,11 +298,9 @@ describe('AlertManager', () => {
       const manager = createAlertManager();
 
       const alert1: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 1',
       };
       const alert2: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 2',
       };
 
@@ -315,7 +310,6 @@ describe('AlertManager', () => {
       manager.configure({ limit: 3, duration: 3000, static: true });
 
       const alert3: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 3',
       };
 
@@ -359,7 +353,6 @@ describe('AlertManager', () => {
       });
 
       const alert1: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 1',
       };
 
@@ -368,7 +361,6 @@ describe('AlertManager', () => {
       manager.configure({ duration: 4000 });
 
       const alert2: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 2',
       };
 
@@ -416,38 +408,6 @@ describe('AlertManager', () => {
         }),
       ]);
     });
-
-    it('should set the duration to 0 if it is set to infinity', () => {
-      jest.useFakeTimers();
-
-      const manager = createAlertManager({
-        static: true,
-      });
-
-      const alert1: Omit<AlertData, 'id'> = {
-        type: 'info',
-        message: 'This is test message 1',
-      };
-
-      manager.add(alert1);
-
-      manager.configure({ duration: Infinity });
-
-      const alert2: Omit<AlertData, 'id'> = {
-        type: 'info',
-        message: 'This is test message 2',
-      };
-
-      const alert2Id = manager.add(alert2);
-
-      expect(manager.getAlerts()).toContainEqual(
-        expect.objectContaining({
-          ...alert2,
-          id: alert2Id,
-          duration: 0,
-        }),
-      );
-    });
   });
 
   describe('getAlerts', () => {
@@ -457,14 +417,12 @@ describe('AlertManager', () => {
       const manager = createAlertManager({ limit: 1 });
 
       const alert1: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 1',
       };
 
       manager.add(alert1);
 
       const alert2: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 2',
       };
 
@@ -489,11 +447,9 @@ describe('AlertManager', () => {
       const manager = createAlertManager();
 
       const alert1Id = manager.add({
-        type: 'info',
         message: 'Test Message 1',
       });
       const alert2Id = manager.add({
-        type: 'info',
         message: 'Test Message 2',
       });
 
@@ -517,7 +473,6 @@ describe('AlertManager', () => {
       const manager = createAlertManager({ static: true, limit: 1 });
 
       const alert1Id = manager.add({
-        type: 'info',
         message: 'Test Message 1',
       });
 
@@ -538,12 +493,10 @@ describe('AlertManager', () => {
       const manager = createAlertManager({ limit: 1 });
 
       const alert1Id = manager.add({
-        type: 'info',
         message: 'Test Message 1',
       });
 
       const alert2Id = manager.add({
-        type: 'info',
         message: 'Test Message 2',
       });
 
@@ -564,12 +517,10 @@ describe('AlertManager', () => {
       const manager = createAlertManager({ limit: 1, static: true });
 
       const alert1Id = manager.add({
-        type: 'info',
         message: 'Test Message 1',
       });
 
       manager.add({
-        type: 'info',
         message: 'Test Message 2',
       });
 
@@ -592,12 +543,10 @@ describe('AlertManager', () => {
       const manager = createAlertManager({ limit: 1 });
 
       const alert1Id = manager.add({
-        type: 'info',
         message: 'Test Message 1',
       });
 
       const alert2Id = manager.add({
-        type: 'info',
         message: 'Test Message 2',
       });
 
@@ -624,7 +573,6 @@ describe('AlertManager', () => {
       manager.subscribe(listener);
 
       const alert: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 1',
       };
 
@@ -633,7 +581,6 @@ describe('AlertManager', () => {
       expect(listener).toBeCalledWith([
         {
           id: expect.any(String),
-          type: alert.type,
           message: alert.message,
           duration,
           pause: expect.any(Function),
@@ -655,7 +602,6 @@ describe('AlertManager', () => {
       manager.subscribe(listener);
 
       const alert: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 1',
       };
 
@@ -678,14 +624,12 @@ describe('AlertManager', () => {
       manager.subscribe(listener);
 
       const alert1: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 1',
       };
 
       manager.add(alert1);
 
       const alert2: Omit<AlertData, 'id'> = {
-        type: 'info',
         message: 'This is test message 2',
       };
 

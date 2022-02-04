@@ -9,10 +9,9 @@ const config = {
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
     '<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}',
   ],
-  // testEnvironment: '@happy-dom/jest-environment',
   testEnvironment: 'jsdom',
   transform: {
-    '\\.(ts|js)x?$': ['esbuild-runner/jest'],
+    '^.+\\.(t|j)sx?$': '@swc/jest',
   },
   transformIgnorePatterns: [
     '[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs|cjs|ts|tsx)$',
