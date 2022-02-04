@@ -1,3 +1,10 @@
+/**
+ * Build config for yah-ui.
+ *
+ *! Though the file is technically a .ts file, type annotations will cause
+ *! this file to not compile.
+ */
+
 import { defineConfig } from 'rollup';
 import path from 'path';
 import dts from 'rollup-plugin-dts';
@@ -10,15 +17,19 @@ import { readFileSync } from 'fs';
 const externals = new Set([
   ...Object.keys(pkg.dependencies || {}),
   ...Object.keys(pkg.peerDependencies || {}),
+  // should this be a dependency? The outputed build depends on it, but it's
+  // only imported by the compiler at build time...
   '@swc/helpers',
 ]);
 
-const isWatchMode = !!process.env.ROLLUP_WATCH;
+const root = __dirname;
 
 const baseConfig = defineConfig({
-  input: path.join(__dirname, 'src/index.ts'),
+  input: path.join(root, 'src/index.ts'),
   external: (id) => externals.has(id),
 });
+
+const isWatchMode = !!process.env.ROLLUP_WATCH;
 
 export default [
   defineConfig({
@@ -46,9 +57,7 @@ export default [
         transform(code) {
           return transform(
             code,
-            JSON.parse(
-              readFileSync(path.join(process.cwd(), '.swcrc'), 'utf8'),
-            ),
+            JSON.parse(readFileSync(path.join(root, '.swcrc'), 'utf8')),
           );
         },
       },
