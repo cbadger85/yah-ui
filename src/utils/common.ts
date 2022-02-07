@@ -33,9 +33,24 @@ export function groupByUnique<T>(
 export function warning(
   assertion: unknown,
   message: string | (() => string),
-): void {
-  if (!assertion && process.env.NODE_ENV !== 'production') {
-    const messageString = typeof message === 'function' ? message() : message;
+): void;
+export function warning(message: string | (() => string)): void;
+export function warning(arg: unknown, message?: string | (() => string)): void {
+  const isOnlyMessage =
+    message === undefined &&
+    (typeof arg === 'function' || typeof arg === 'string');
+
+  const isWarn = isOnlyMessage || !arg;
+
+  if (isWarn && process.env.NODE_ENV !== 'production') {
+    const messageString =
+      isOnlyMessage && typeof arg === 'function'
+        ? arg()
+        : isOnlyMessage && typeof arg === 'string'
+        ? arg
+        : typeof message === 'function'
+        ? message()
+        : message;
 
     console.warn(`WARNING: ${messageString}`);
   }

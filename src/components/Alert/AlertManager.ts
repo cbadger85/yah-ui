@@ -15,12 +15,14 @@ export interface AlertManagerConfig {
    */
   limit?: number;
   /**
-   * Time in ms the alert should be displayed. A value of Infinity
-   * will be ignored and replaced with a 0.
+   * Time in ms the alert should be displayed. If null is provided, the
+   * message will have no duration and remain in the active queue until
+   * removed. A value of Infinity will be ignored and replaced with a 0 and
+   * absolute value will be taken for negative numbers.
    *
    * @default 6000
    */
-  duration?: number;
+  duration?: number | null;
   /**
    * If true, the manager will not remove the alert when the status
    * is changed to `inactive`.
@@ -43,31 +45,37 @@ export type AlertData<M = string> = {
    * Time in ms the alert should be displayed. This will override the
    * duration in the config.
    */
-  duration?: number;
+  duration?: number | null;
 };
 
 export type ActiveAlertData<M = string> = AlertData<M> & {
   /**
-   * The duration from `manager.add` or, if not provided, the duration from the config.
-   * A value of Infinity will be ignored and replaced with a 0.
+   * The duration from `manager.add` or, if not provided, the duration from
+   * the config. If null is provided, the message will have no duration and
+   * remain in the active queue until removed. A value of Infinity will be
+   * ignored and replaced with a 0 and absolute value will be taken for
+   * negative numbers.
    */
-  readonly duration: number;
+  readonly duration: number | null;
   /**
    * The status of the active alert.
    */
   readonly status: 'inactive' | 'active';
   /**
-   * `true` if the current alert is paused.
+   * `true` if the current alert is paused. If duration is set to null,
+   * this will always be false.
    */
   readonly isPaused: boolean;
   /**
-   * Pauses the alert's duration timer.
+   * Pauses the alert's duration timer. If duration is set to null, pause
+   * will have no effect and return 0.
    *
    * @returns The time remaining on the alert's duration timer.
    */
   pause: () => number;
   /**
-   * Resumes the alert's duration timer.
+   * Resumes the alert's duration timer. If duration is set to null, resume
+   * will have no effect.
    */
   resume: () => void;
   /**
@@ -140,7 +148,10 @@ class Manager<M> implements AlertManager<M> {
   ): Required<AlertManagerConfig> {
     return {
       limit: config?.limit ?? baseConfig.limit,
-      duration: config?.duration ?? baseConfig.duration,
+      duration:
+        config?.duration === null
+          ? null
+          : config?.duration ?? baseConfig.duration,
       static: config?.static ?? baseConfig.static,
     };
   }
@@ -212,28 +223,54 @@ class Manager<M> implements AlertManager<M> {
   }
 
   #addActiveAlert(alert: AlertData<M>) {
-    const duration = alert.duration ?? this.#config.duration;
+    const duration = this.#getDuration(alert.duration);
+
+    if (duration === null) {
+      this.#activeAlertQueue.setValue([
+        ...this.getAlerts(),
+        {
+          ...alert,
+          status: 'active',
+          duration,
+          pause: () => {
+            warning('pause has no effect when duration is null');
+            return 0;
+          },
+          resume: () => warning('resume has no effect when duration is null'),
+          close: () => this.remove(alert.id),
+          isPaused: false,
+        },
+      ]);
+    } else {
+      const { pause, resume, isPaused } = setPausableTimeout(() => {
+        this.#removeActiveAlert(alert.id);
+      }, duration);
+
+      this.#activeAlertQueue.setValue([
+        ...this.getAlerts(),
+        {
+          ...alert,
+          status: 'active',
+          duration,
+          pause,
+          resume,
+          close: () => this.remove(alert.id),
+          isPaused,
+        },
+      ]);
+    }
+  }
+
+  #getDuration(duration: number | null | undefined): number | null {
+    const mergedDuration =
+      duration === null ? null : duration ?? this.#config.duration;
+
     warning(
-      duration !== Infinity,
+      mergedDuration !== Infinity,
       'A duration of Infinity will be treated as 0',
     );
 
-    const { pause, resume, isPaused } = setPausableTimeout(() => {
-      this.#removeActiveAlert(alert.id);
-    }, duration);
-
-    this.#activeAlertQueue.setValue([
-      ...this.getAlerts(),
-      {
-        ...alert,
-        status: 'active',
-        duration: duration === Infinity ? 0 : duration,
-        pause,
-        resume,
-        close: () => this.remove(alert.id),
-        isPaused,
-      },
-    ]);
+    return mergedDuration === Infinity ? 0 : mergedDuration;
   }
 
   #isActiveAlert(id: string) {

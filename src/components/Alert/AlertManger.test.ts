@@ -120,6 +120,51 @@ describe('AlertManager', () => {
       );
     });
 
+    it('should display the alert indefinitely if duration is set to null in the config', () => {
+      jest.useFakeTimers();
+
+      const manager = createAlertManager({ duration: null });
+
+      const alert: Omit<AlertData, 'id'> = {
+        message: 'This is a test message',
+      };
+
+      const alertId = manager.add(alert);
+
+      jest.runAllTimers();
+
+      expect(manager.getAlerts()).toContainEqual(
+        expect.objectContaining({
+          id: alertId,
+          duration: null,
+          status: 'active',
+        }),
+      );
+    });
+
+    it('should display the alert indefinitely if duration is set to null message', () => {
+      jest.useFakeTimers();
+
+      const manager = createAlertManager({ duration: 10000 });
+
+      const alert: Omit<AlertData, 'id'> = {
+        message: 'This is a test message',
+        duration: null,
+      };
+
+      const alertId = manager.add(alert);
+
+      jest.runAllTimers();
+
+      expect(manager.getAlerts()).toContainEqual(
+        expect.objectContaining({
+          id: alertId,
+          duration: null,
+          status: 'active',
+        }),
+      );
+    });
+
     it('should only add alerts up to the default limit', () => {
       const manager = createAlertManager();
 
