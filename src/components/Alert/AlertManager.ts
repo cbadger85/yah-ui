@@ -62,11 +62,6 @@ export type ActiveAlertData<M = string> = AlertData<M> & {
    */
   readonly status: 'inactive' | 'active';
   /**
-   * `true` if the current alert is paused. If duration is set to null,
-   * this will always be false.
-   */
-  readonly isPaused: boolean;
-  /**
    * Pauses the alert's duration timer. If duration is set to null, pause
    * will have no effect and return 0.
    *
@@ -238,11 +233,10 @@ class Manager<M> implements AlertManager<M> {
           },
           resume: () => warning('resume has no effect when duration is null'),
           close: () => this.remove(alert.id),
-          isPaused: false,
         },
       ]);
     } else {
-      const { pause, resume, isPaused } = setPausableTimeout(() => {
+      const { pause, resume } = setPausableTimeout(() => {
         this.#removeActiveAlert(alert.id);
       }, duration);
 
@@ -255,7 +249,6 @@ class Manager<M> implements AlertManager<M> {
           pause,
           resume,
           close: () => this.remove(alert.id),
-          isPaused,
         },
       ]);
     }
