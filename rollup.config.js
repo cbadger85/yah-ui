@@ -1,12 +1,13 @@
-/* eslint-disable no-undef */
-
+import resolve from '@rollup/plugin-node-resolve';
+import { transform } from '@swc/core';
+import { existsSync, readFileSync } from 'fs';
 import path from 'path';
+import del from 'rollup-plugin-delete';
 import dts from 'rollup-plugin-dts';
 import pkg from './package.json';
-import del from 'rollup-plugin-delete';
-import { transform } from '@swc/core';
-import resolve from '@rollup/plugin-node-resolve';
-import { readFileSync } from 'fs';
+
+const root = __dirname;
+const isWatchMode = !!process.env.ROLLUP_WATCH;
 
 const externals = new Set([
   ...Object.keys(pkg.dependencies || {}),
@@ -16,15 +17,11 @@ const externals = new Set([
   '@swc/helpers',
 ]);
 
-const projectRoot = __dirname;
-
 /** @type {(import('rollup').RollupOptions)} */
 const baseConfig = {
-  input: path.join(projectRoot, 'src/index.ts'),
+  input: path.join(root, 'src/index.ts'),
   external: (id) => externals.has(id),
 };
-
-const isWatchMode = !!process.env.ROLLUP_WATCH;
 
 /** @type {import('rollup').RollupOptions[]} */
 const config = [
@@ -47,7 +44,7 @@ const config = [
     plugins: [
       del({ targets: 'dist/*', runOnce: isWatchMode }),
       resolve({ extensions: ['.ts', '.tsx'] }),
-      swc({ root }),
+      swc(),
     ],
   },
   {
@@ -60,21 +57,25 @@ const config = [
 export default config;
 
 /**
- * adhoc plugin to use swc as transpiler
+ * Compile project with SWC
  *
+ * @param {Object} [config={}]
+ * @param {string} [config.swcConfig] the path to the swc config. if not provided, it will use the config in `process.cwd()` if it exists.
  * @returns {import('rollup').Plugin}
  */
-function swc({ root = process.cwd() }) {
+function swc({ swcConfig } = {}) {
   function getSwcOptions() {
-    try {
-      return JSON.parse(readFileSync(path.join(root, '.swcrc'), 'utf8'));
-    } catch (e) {
-      if (e instanceof Error && e.code === 'ENOENT') {
-        return undefined; // if no config is found, use the default provided by SWC
-      }
-
-      throw e;
+    if (swcConfig) {
+      return JSON.parse(readFileSync(swcConfig, 'utf8'));
     }
+
+    const defaultSwcPath = path.join(process.cwd(), '.swcrc');
+
+    if (existsSync(defaultSwcPath)) {
+      return JSON.parse(readFileSync(defaultSwcPath, 'utf8'));
+    }
+
+    return undefined;
   }
 
   return {
