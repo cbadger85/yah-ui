@@ -1,11 +1,5 @@
-/**
- * Build config for yah-ui.
- *
- *! Though the file is technically a .ts file, type annotations will cause
- *! this file to not compile.
- */
+/* eslint-disable no-undef */
 
-import { defineConfig } from 'rollup';
 import path from 'path';
 import dts from 'rollup-plugin-dts';
 import pkg from './package.json';
@@ -22,17 +16,19 @@ const externals = new Set([
   '@swc/helpers',
 ]);
 
-const root = __dirname;
+const projectRoot = __dirname;
 
-const baseConfig = defineConfig({
-  input: path.join(root, 'src/index.ts'),
+/** @type {(import('rollup').RollupOptions)} */
+const baseConfig = {
+  input: path.join(projectRoot, 'src/index.ts'),
   external: (id) => externals.has(id),
-});
+};
 
 const isWatchMode = !!process.env.ROLLUP_WATCH;
 
-export default [
-  defineConfig({
+/** @type {import('rollup').RollupOptions[]} */
+const config = [
+  {
     ...baseConfig,
     output: [
       {
@@ -51,21 +47,40 @@ export default [
     plugins: [
       del({ targets: 'dist/*', runOnce: isWatchMode }),
       resolve({ extensions: ['.ts', '.tsx'] }),
-      // adhoc plugin to use swc as transpiler
-      {
-        name: 'swc',
-        transform(code) {
-          return transform(
-            code,
-            JSON.parse(readFileSync(path.join(root, '.swcrc'), 'utf8')),
-          );
-        },
-      },
+      swc({ root }),
     ],
-  }),
-  defineConfig({
+  },
+  {
     ...baseConfig,
     output: [{ file: 'dist/index.d.ts' }],
     plugins: [dts()],
-  }),
+  },
 ];
+
+export default config;
+
+/**
+ * adhoc plugin to use swc as transpiler
+ *
+ * @returns {import('rollup').Plugin}
+ */
+function swc({ root = process.cwd() }) {
+  function getSwcOptions() {
+    try {
+      return JSON.parse(readFileSync(path.join(root, '.swcrc'), 'utf8'));
+    } catch (e) {
+      if (e instanceof Error && e.code === 'ENOENT') {
+        return undefined; // if no config is found, use the default provided by SWC
+      }
+
+      throw e;
+    }
+  }
+
+  return {
+    name: 'swc',
+    transform(code) {
+      return transform(code, getSwcOptions());
+    },
+  };
+}
