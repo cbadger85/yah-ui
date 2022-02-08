@@ -57,11 +57,13 @@ const config = [
 export default config;
 
 /**
- * Compile project with SWC
+ * Compile project with swc. By default, the plugin will look for an .swcrc
+ * file in `process.cwd()`. The path to the swc config can be overwritten in
+ * the plugin options.
  *
- * @param {Object} [config={}]
- * @param {string} [config.swcConfig] the path to the swc config. if not provided, it will use the config in `process.cwd()` if it exists.
- * @returns {import('rollup').Plugin}
+ * @param {Object} [config={}] plugin config options
+ * @param {string} [config.swcConfig] the path to the swc config
+ * @returns {import('rollup').Plugin} Rollup plugin
  */
 function swc({ swcConfig } = {}) {
   function getSwcOptions() {
@@ -79,7 +81,7 @@ function swc({ swcConfig } = {}) {
   }
 
   return {
-    name: 'swc',
+    name: 'rollup-plugin-swc-transformer',
     transform(code) {
       return transform(code, getSwcOptions());
     },
