@@ -1,4 +1,4 @@
-import { identity, mergeAttributes } from './common';
+import { identity, mergeAttributes, warning } from './common';
 
 describe('identity', () => {
   it('should return the value provided', () => {
@@ -35,5 +35,33 @@ describe('mergeAttributes', () => {
     expect(mergeAttributes('test-string-1', 'test-string-1')).toBe(
       'test-string-1',
     );
+  });
+});
+
+describe('warning', () => {
+  it('should only display the warning if the assertion is false', () => {
+    const consoleWarn = jest.spyOn(console, 'warn');
+
+    const message = 'oops';
+
+    warning(false, message);
+
+    expect(consoleWarn).toBeCalledWith(`WARNING: ${message}`);
+
+    consoleWarn.mockClear();
+
+    warning(true, message);
+
+    expect(consoleWarn).not.toBeCalled();
+  });
+
+  it('should allow just a message without an assertion', () => {
+    const consoleWarn = jest.spyOn(console, 'warn');
+
+    const message = 'oops';
+
+    warning(message);
+
+    expect(consoleWarn).toBeCalledWith(`WARNING: ${message}`);
   });
 });

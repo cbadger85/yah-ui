@@ -709,6 +709,22 @@ describe('AlertManager', () => {
       expect(manager.getAlerts()).toHaveLength(0);
     });
 
+    it('should close the alert if the close function is called and the duration is null', () => {
+      const manager = createAlertManager({ duration: null });
+
+      const alert: Omit<AlertData, 'id'> = {
+        message: 'This is test message 1',
+      };
+
+      manager.add(alert);
+
+      expect(manager.getAlerts()).toHaveLength(1);
+
+      manager.getAlerts()[0]?.close();
+
+      expect(manager.getAlerts()).toHaveLength(0);
+    });
+
     it('should pause the alert and return the time remaining', () => {
       jest.useFakeTimers();
 

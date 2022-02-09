@@ -22,19 +22,15 @@ export function warning(
   assertion: unknown,
   message: string | (() => string),
 ): void;
-export function warning(message: string | (() => string)): void;
+export function warning(message: string): void;
 export function warning(arg: unknown, message?: string | (() => string)): void {
-  const isOnlyMessage =
-    message === undefined &&
-    (typeof arg === 'function' || typeof arg === 'string');
+  const isOnlyMessage = message === undefined && typeof arg === 'string';
 
   const isWarn = isOnlyMessage || !arg;
 
   if (isWarn && process.env.NODE_ENV !== 'production') {
     const messageString =
-      isOnlyMessage && typeof arg === 'function'
-        ? arg()
-        : isOnlyMessage && typeof arg === 'string'
+      isOnlyMessage && typeof arg === 'string'
         ? arg
         : typeof message === 'function'
         ? message()

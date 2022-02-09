@@ -39,6 +39,10 @@ describe('hasProperty', () => {
     [true, { foo: undefined }, 'foo'],
     [false, { foo: 'foo' }, 'bar'],
     [false, { foo: undefined }, 'bar'],
+    [false, null, 'bar'],
+    [false, false, 'bar'],
+    [false, 'string', 'bar'],
+    [false, 1, 'bar'],
   ])(
     '[%#] --> should return %s if the property exists in the object',
     (expectedValue, object, key) => {
