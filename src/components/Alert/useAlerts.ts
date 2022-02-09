@@ -67,10 +67,11 @@ export function useAlerts<M = string>(
   };
 }
 
-function isAlertManager<M>(
+export function isAlertManager<M>(
   alertManager: unknown,
 ): alertManager is AlertManager<M> {
   return (
+    typeof alertManager === 'object' &&
     hasProperty(alertManager, 'subscribe') &&
     typeof alertManager.subscribe === 'function' &&
     hasProperty(alertManager, 'add') &&
@@ -82,6 +83,6 @@ function isAlertManager<M>(
     hasProperty(alertManager, 'unmount') &&
     typeof alertManager.unmount === 'function' &&
     hasProperty(alertManager, 'getAlerts') &&
-    Array.isArray(alertManager.getAlerts)
+    typeof alertManager.getAlerts === 'function'
   );
 }

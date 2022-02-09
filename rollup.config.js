@@ -6,7 +6,6 @@ import del from 'rollup-plugin-delete';
 import dts from 'rollup-plugin-dts';
 import pkg from './package.json';
 
-const root = __dirname;
 const isWatchMode = !!process.env.ROLLUP_WATCH;
 
 const externals = new Set([
@@ -19,7 +18,7 @@ const externals = new Set([
 
 /** @type {(import('rollup').RollupOptions)} */
 const baseConfig = {
-  input: path.join(root, 'src/index.ts'),
+  input: path.join(__dirname, 'src/index.ts'),
   external: (id) => externals.has(id),
 };
 

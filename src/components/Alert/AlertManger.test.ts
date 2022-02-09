@@ -621,17 +621,16 @@ describe('AlertManager', () => {
         message: 'This is test message 1',
       };
 
-      manager.add(alert);
+      const alertId = manager.add(alert);
 
       expect(listener).toBeCalledWith([
         {
-          id: expect.any(String),
+          id: alertId,
           message: alert.message,
           duration,
           pause: expect.any(Function),
           resume: expect.any(Function),
           close: expect.any(Function),
-          isPaused: false,
           status: 'active',
         },
       ]);
