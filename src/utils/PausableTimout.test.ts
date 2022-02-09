@@ -72,6 +72,31 @@ describe('setPausableTimeout', () => {
 
         expect(timeRemaining).toBe(2000);
       });
+
+      it('should return the time left on the timeout if pause is called on a paused timeout', () => {
+        jest.useFakeTimers();
+
+        const callback = jest.fn();
+        const delay = 3000;
+
+        const timeout = setPausableTimeout(callback, delay);
+
+        jest.advanceTimersByTime(1000);
+
+        const timeRemaining1 = timeout.pause();
+        expect(timeRemaining1).toBe(2000);
+
+        jest.advanceTimersByTime(1000);
+
+        const timeRemaining2 = timeout.pause();
+
+        expect(timeRemaining2).toBe(timeRemaining1);
+
+        timeout.resume();
+
+        jest.advanceTimersByTime(2000);
+        expect(callback).toBeCalled();
+      });
     });
 
     describe('resume', () => {
@@ -86,6 +111,23 @@ describe('setPausableTimeout', () => {
         jest.advanceTimersByTime(1000);
 
         timeout.pause();
+
+        timeout.resume();
+
+        jest.advanceTimersByTime(2000);
+
+        expect(callback).toBeCalled();
+      });
+
+      it('should do nothing if resume is called on an active timeout', () => {
+        jest.useFakeTimers();
+
+        const callback = jest.fn();
+        const delay = 3000;
+
+        const timeout = setPausableTimeout(callback, delay);
+
+        jest.advanceTimersByTime(1000);
 
         timeout.resume();
 

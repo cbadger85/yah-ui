@@ -15,6 +15,7 @@ class Timeout implements PausableTimeout {
   #remaining: number;
   #start?: number;
   #timeoutId!: number; // the setPausable timout populates this when it calls `this.resume`
+  #isPaused = false;
 
   constructor(callback: () => void, delay: number) {
     this.#callback = callback;
@@ -25,7 +26,7 @@ class Timeout implements PausableTimeout {
     return this.#timeoutId;
   }
 
-  resume() {
+  start() {
     this.#start = Date.now();
 
     window.clearTimeout(this.#timeoutId);
@@ -33,10 +34,20 @@ class Timeout implements PausableTimeout {
     this.#timeoutId = window.setTimeout(this.#callback, this.#remaining);
   }
 
+  resume() {
+    if (this.#isPaused) {
+      this.start();
+
+      this.#isPaused = false;
+    }
+  }
+
   pause() {
-    if (this.#start === undefined) {
+    if (this.#start === undefined || this.#isPaused) {
       return this.#remaining;
     }
+
+    this.#isPaused = true;
 
     window.clearTimeout(this.#timeoutId);
 
@@ -52,7 +63,7 @@ export function setPausableTimeout(
 ): PausableTimeout {
   const timeout = new Timeout(callback, delay);
 
-  timeout.resume();
+  timeout.start();
 
   return {
     getTimeoutId: timeout.getTimeoutId.bind(timeout),

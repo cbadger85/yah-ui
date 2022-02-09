@@ -691,4 +691,117 @@ describe('AlertManager', () => {
       );
     });
   });
+
+  describe('ActiveAlertData', () => {
+    it('should close the alert if the close function is called', () => {
+      const manager = createAlertManager();
+
+      const alert: Omit<AlertData, 'id'> = {
+        message: 'This is test message 1',
+      };
+
+      manager.add(alert);
+
+      expect(manager.getAlerts()).toHaveLength(1);
+
+      manager.getAlerts()[0]?.close();
+
+      expect(manager.getAlerts()).toHaveLength(0);
+    });
+
+    it('should pause the alert and return the time remaining', () => {
+      jest.useFakeTimers();
+
+      const manager = createAlertManager({ duration: 4000 });
+
+      const alert: Omit<AlertData, 'id'> = {
+        message: 'This is test message 1',
+      };
+
+      manager.add(alert);
+
+      expect(manager.getAlerts()).toHaveLength(1);
+
+      jest.advanceTimersByTime(1000);
+
+      const timeRemaining = manager.getAlerts()[0]?.pause();
+
+      expect(timeRemaining).toBe(3000);
+    });
+
+    it('should return 0 if duration is null and the alert is paused', () => {
+      jest.spyOn(commonUtils, 'warning');
+
+      jest.useFakeTimers();
+
+      const manager = createAlertManager({ duration: null });
+
+      const alert: Omit<AlertData, 'id'> = {
+        message: 'This is test message 1',
+      };
+
+      manager.add(alert);
+
+      expect(manager.getAlerts()).toHaveLength(1);
+
+      const timeRemaining = manager.getAlerts()[0]?.pause();
+
+      expect(timeRemaining).toBe(0);
+      expect(commonUtils.warning).toBeCalledWith(expect.any(String));
+    });
+
+    it('should resume the alert if resume is called', () => {
+      jest.useFakeTimers();
+
+      const manager = createAlertManager({ duration: 4000 });
+
+      const alert: Omit<AlertData, 'id'> = {
+        message: 'This is test message 1',
+      };
+
+      manager.add(alert);
+
+      expect(manager.getAlerts()).toHaveLength(1);
+
+      jest.advanceTimersByTime(1000);
+
+      manager.getAlerts()[0]?.pause();
+      manager.getAlerts()[0]?.resume();
+
+      jest.advanceTimersByTime(3000);
+
+      expect(manager.getAlerts()).toHaveLength(0);
+    });
+
+    it('should do nothing if the alert is resumed and the duration is null', () => {
+      jest.spyOn(commonUtils, 'warning');
+      jest.useFakeTimers();
+
+      const manager = createAlertManager({ duration: null });
+
+      const alert: Omit<AlertData, 'id'> = {
+        message: 'This is test message 1',
+      };
+
+      const alertId = manager.add(alert);
+
+      expect(manager.getAlerts()).toHaveLength(1);
+
+      jest.advanceTimersByTime(1000);
+
+      manager.getAlerts()[0]?.pause();
+      manager.getAlerts()[0]?.resume();
+
+      jest.runAllTimers();
+
+      expect(manager.getAlerts()).toContainEqual(
+        expect.objectContaining({
+          id: alertId,
+          ...alert,
+          duration: null,
+        }),
+      );
+      expect(commonUtils.warning).toBeCalledWith(expect.any(String));
+    });
+  });
 });

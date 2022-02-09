@@ -18,18 +18,6 @@ export function mergeAttributes(...ids: unknown[]): string | undefined {
   return uniqueIds.length ? uniqueIds.join(' ') : undefined;
 }
 
-export function groupByUnique<T>(
-  list: T[],
-  getKey: (value: T) => PropertyKey,
-): Record<PropertyKey, T> {
-  return list.reduce((map, value) => {
-    return {
-      ...map,
-      [getKey(value)]: value,
-    };
-  }, {});
-}
-
 export function warning(
   assertion: unknown,
   message: string | (() => string),
