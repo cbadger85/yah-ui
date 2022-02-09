@@ -1,5 +1,5 @@
 
-name: Remove Merged Branches
+name: Cleanup PRs
 
 on:
   pull_request:
