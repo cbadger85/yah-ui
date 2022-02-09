@@ -1,0 +1,15 @@
+
+name: Remove Merged Branches
+
+on:
+  pull_request:
+    branches: [ main, next ]
+    types: [ closed ]
+
+jobs:
+  remove-merged-branch:
+    if: ${{github.event.pull_request.merged == true && github.payload.pull_request.head.ref != 'main' && github.payload.pull_request.head.ref != 'next' }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - run: git branch -D ${{github.payload.pull_request.head.ref}}
