@@ -1,0 +1,52 @@
+name: Create Version Branch
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The next release version
+        required: true
+      base:
+        description: The branch to create the release from
+        required: true
+        default: next
+
+jobs:
+  create-release-branch:
+    runs-on: ubuntu-latest
+    
+    env:
+      BRANCH_NAME: 'release-v${{github.events.inputs.version}}'
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: '${{github.events.base}}'
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          
+      - name: Build & Test
+        run: |
+          yarn install
+          yarn start:ci
+          
+      - name: Increment Version
+      # TODO: verify version doesn't exist before incrementing
+        run: 'yarn version --new-version ${{github.events.version}} --no-git-tag-version'
+      
+      - name: Commit Version
+      # commit version change (message: 'chore: increment version to ${{github.events.version}}'
+        run: |
+          git add .
+          git commit -m 'chore: increment version to ${{github.events.version}}'
+
+      - name: Create Branch
+        run: |
+          echo Creating release branch ${{env.BRANCH_NAME}} from ${{github.events.base}}
+          git checkout -b ${{env.BRANCH_NAME}}
+
+      - name: Push Branch to Origin
+        run: |
+          echo Pushing branch to origin
+          git push --set-upstream origin ${{env.BRANCH_NAME}}
