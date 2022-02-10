@@ -15,7 +15,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3.12.1
         with:
-          message: 'chore: update development branch'
+          commit-message: 'chore: update development branch'
           committer: GitHub Actions Bot <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
           branch: next
