@@ -1,0 +1,162 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
+
+.toaster {
+  pointer-events: none;
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-height: 1px;
+
+  font-family: 'Open Sans', sans-serif;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.toast {
+  pointer-events: auto;
+
+  width: 350px;
+  min-height: 50px;
+  border-radius: 4px;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.2);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+
+  position: relative;
+}
+
+.toastInfo {
+  background-color: dodgerblue;
+  color: white;
+}
+
+.toastSuccess {
+  background-color: seagreen;
+  color: white;
+}
+
+.toastWarn {
+  background-color: chocolate;
+  color: white;
+}
+
+.toastError {
+  background-color: crimson;
+  color: white;
+}
+
+.progressBarContainer {
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  height: 4px;
+  bottom: 4px;
+  border-radius: 4px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+}
+
+.progressBarInfo {
+  background-color: cyan;
+}
+
+.progressBarSuccess {
+  background-color: greenyellow;
+}
+
+.progressBarWarn {
+  background-color: gold;
+}
+
+.progressBarError {
+  background-color: hotpink;
+}
+
+.closeButton {
+  border: none;
+  padding: 0;
+  background-color: inherit;
+  border-radius: 100px;
+  font-size: 32px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  width: 32px;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.closeButtonInfo {
+  color: white;
+
+  &:focus {
+    box-shadow: 0 0 0 1px navy;
+  }
+
+  &:hover {
+    background-color: steelblue;
+  }
+}
+
+.closeButtonSuccess {
+  color: white;
+
+  &:focus {
+    box-shadow: 0 0 0 1px darkgreen;
+  }
+
+  &:hover {
+    background-color: darkslategray;
+  }
+}
+
+.closeButtonWarn {
+  color: white;
+
+  &:focus {
+    box-shadow: 0 0 0 1px tomato;
+  }
+
+  &:hover {
+    background-color: sienna;
+  }
+}
+
+.closeButtonError {
+  color: white;
+
+  &:focus {
+    box-shadow: 0 0 0 1px firebrick;
+  }
+
+  &:hover {
+    background-color: lightcoral;
+  }
+}
+
+.srOnly {
+  display: block;
+  position: fixed;
+  height: 1px;
+  width: 1px;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+}

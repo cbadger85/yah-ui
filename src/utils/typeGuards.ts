@@ -1,0 +1,16 @@
+export function isTruthy<T>(value: T | undefined | null): value is T {
+  return Boolean(value);
+}
+
+export function isString(value: unknown): value is string {
+  return typeof value === 'string';
+}
+
+export function hasProperty<X, Y extends PropertyKey>(
+  obj: X,
+  prop: Y,
+): obj is X & Record<Y, unknown> {
+  return !obj || !prop
+    ? false
+    : Object.prototype.hasOwnProperty.call(obj, prop);
+}

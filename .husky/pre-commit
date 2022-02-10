@@ -1,0 +1,16 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+. "$(dirname "$0")/common.sh"
+
+
+# Get's the changed files from git, filter list to only files with extensions supported by prettier (excluding deleted and unknown status), then separate the list by space.
+CHANGED_FILES=$(git diff --name-only --cached --diff-filter=du | egrep '\.ts$|\.tsx$|\.js$|\.jsx$|\.vue$|\.json$|\.css$|\.scss$|\.less$|\.html$|\.htm$|\.md$|\.mdx$|\.yml$|\.yaml$|\.graphql$|\.gql$' | tr "\n" " ")
+
+if [ -z "$CHANGED_FILES" ]
+then
+  exit 0
+else
+  echo "🔧  Formatting committed files..."
+  yarn prettier --write $CHANGED_FILES
+  git add .
+fi  
